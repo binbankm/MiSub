@@ -175,8 +175,8 @@ const expiryInfo = computed(() => {
         />
         <button 
           @click.stop="toggleUrlVisibility"
-          class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200"
-          :class="{ 'bg-gray-200 dark:bg-gray-700': isTogglingUrl }"
+          class="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 rounded-full hover:bg-orange-500/10 text-gray-400 hover:text-orange-500 transition-colors"
+          :class="{ 'bg-orange-500/10 text-orange-500': isTogglingUrl }"
           :title="showUrl ? '隐藏链接' : '显示链接'"
           :disabled="isTogglingUrl"
         >
@@ -191,7 +191,7 @@ const expiryInfo = computed(() => {
         <button 
           v-if="showUrl"
           @click.stop="copyUrl"
-          class="absolute right-8 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200"
+          class="absolute right-8 top-1/2 transform -translate-y-1/2 p-1.5 rounded-full hover:bg-orange-500/10 text-gray-400 hover:text-orange-500 transition-colors"
           title="复制链接"
         >
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
