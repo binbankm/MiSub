@@ -10,6 +10,52 @@ const props = defineProps({
 
 const emit = defineEmits(['delete', 'change', 'update', 'edit', 'showNodes']);
 
+// URL显示状态
+const showUrl = ref(false);
+
+// 鼠标事件处理
+const mouseDownTime = ref(0);
+const mouseDownPosition = ref({ x: 0, y: 0 });
+const hasDragged = ref(false);
+
+const handleMouseDown = (event) => {
+  mouseDownTime.value = Date.now();
+  mouseDownPosition.value = { x: event.clientX, y: event.clientY };
+  hasDragged.value = false;
+  
+  // 添加鼠标移动和抬起事件监听
+  const handleMouseMove = (e) => {
+    const deltaX = Math.abs(e.clientX - mouseDownPosition.value.x);
+    const deltaY = Math.abs(e.clientY - mouseDownPosition.value.y);
+    if (deltaX > 5 || deltaY > 5) {
+      hasDragged.value = true;
+    }
+  };
+  
+  const handleMouseUp = () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+  
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
+};
+
+const handleCardClick = (event) => {
+  // 如果发生了拖动，不触发节点信息框
+  if (hasDragged.value) {
+    return;
+  }
+  
+  // 如果点击时间太短（快速点击），也不触发
+  const clickTime = Date.now() - mouseDownTime.value;
+  if (clickTime < 50) {
+    return;
+  }
+  
+  emit('showNodes');
+};
+
 const getProtocol = (url) => {
   try {
     if (!url) return 'unknown';
@@ -80,7 +126,8 @@ const expiryInfo = computed(() => {
   <div 
     class="group bg-white dark:bg-gray-900/60 backdrop-blur-sm rounded-2xl shadow-lg dark:shadow-2xl ring-1 ring-black/5 p-4 transition-all duration-300 hover:-translate-y-0.5 flex flex-col h-full min-h-[175px] cursor-pointer"
     :class="{ 'opacity-50': !misub.enabled, 'ring-indigo-500/50': misub.isNew }"
-    @click="emit('showNodes')"
+    @click="handleCardClick"
+    @mousedown="handleMouseDown"
   >
     <div class="flex items-start justify-between gap-3">
       <div class="w-full truncate">
@@ -107,7 +154,28 @@ const expiryInfo = computed(() => {
     </div>
     
     <div class="mt-2 flex-grow flex flex-col justify-center space-y-2">
-      <input type="text" :value="misub.url" readonly class="w-full text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800/50 rounded-lg px-3 py-2 focus:outline-none font-mono" />
+      <div class="relative">
+        <input 
+          type="text" 
+          :value="misub.url" 
+          readonly 
+          class="w-full text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800/50 rounded-lg px-3 py-2 focus:outline-none font-mono pr-12" 
+          :class="{ 'blur-sm select-none': !showUrl }"
+        />
+        <button 
+          @click.stop="showUrl = !showUrl"
+          class="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          :title="showUrl ? '隐藏链接' : '显示链接'"
+        >
+          <svg v-if="showUrl" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+          </svg>
+          <svg v-else class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        </button>
+      </div>
       <div v-if="trafficInfo" class="space-y-1 pt-1">
         <div class="flex justify-between text-xs font-mono"><span class="text-gray-600 dark:text-gray-400">{{ trafficInfo.used }}</span><span class="text-gray-600 dark:text-gray-400">{{ trafficInfo.total }}</span></div>
         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5"><div class="bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5 rounded-full" :style="{ width: trafficInfo.percentage + '%' }"></div></div>
