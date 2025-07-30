@@ -15,7 +15,8 @@ import RightPanel from './RightPanel.vue';
 import ProfileCard from './ProfileCard.vue';
 import ManualNodeList from './ManualNodeList.vue'; 
 import SubscriptionImportModal from './SubscriptionImportModal.vue';
-import NodeDetailsModal from './NodeDetailsModal.vue'; 
+import NodeDetailsModal from './NodeDetailsModal.vue';
+import ProfileNodeDetailsModal from './ProfileNodeDetailsModal.vue'; 
 
 const SettingsModal = defineAsyncComponent(() => import('./SettingsModal.vue'));
 const BulkImportModal = defineAsyncComponent(() => import('./BulkImportModal.vue'));
@@ -82,6 +83,8 @@ const showProfilesMoreMenu = ref(false);
 const showSubscriptionImportModal = ref(false);
 const showNodeDetailsModal = ref(false);
 const selectedSubscription = ref(null);
+const showProfileNodeDetailsModal = ref(false);
+const selectedProfile = ref(null);
 
 const nodesMoreMenuRef = ref(null);
 const subsMoreMenuRef = ref(null);
@@ -369,6 +372,11 @@ const handleShowNodeDetails = (subscription) => {
     showNodeDetailsModal.value = true;
 };
 
+const handleShowProfileNodeDetails = (profile) => {
+    selectedProfile.value = profile;
+    showProfileNodeDetailsModal.value = true;
+};
+
 </script>
 
 <template>
@@ -601,6 +609,7 @@ const handleShowNodeDetails = (subscription) => {
               @delete="handleDeleteProfile(profile.id)"
               @change="handleProfileToggle($event)"
               @copy-link="copyProfileLink(profile.id)"
+              @showNodes="handleShowProfileNodeDetails(profile)"
             />
           </div>
           <div v-else class="text-center py-12 text-gray-500 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl">
@@ -655,6 +664,13 @@ const handleShowNodeDetails = (subscription) => {
   <SettingsModal v-model:show="uiStore.isSettingsModalVisible" />
   <SubscriptionImportModal :show="showSubscriptionImportModal" @update:show="showSubscriptionImportModal = $event" :add-nodes-from-bulk="addNodesFromBulk" />
   <NodeDetailsModal :show="showNodeDetailsModal" :subscription="selectedSubscription" @update:show="showNodeDetailsModal = $event" />
+  <ProfileNodeDetailsModal 
+    :show="showProfileNodeDetailsModal" 
+    :profile="selectedProfile" 
+    :all-subscriptions="subscriptions"
+    :all-manual-nodes="manualNodes"
+    @update:show="showProfileNodeDetailsModal = $event" 
+  />
 </template>
 
 <style scoped>
