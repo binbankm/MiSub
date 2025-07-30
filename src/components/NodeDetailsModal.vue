@@ -20,12 +20,19 @@ const toastStore = useToastStore();
 // 监听模态框显示状态
 watch(() => props.show, async (newVal) => {
   if (newVal && props.subscription) {
-    await fetchNodes();
+    try {
+      await fetchNodes();
+    } catch (error) {
+      console.error('Error fetching nodes:', error);
+      errorMessage.value = `获取节点信息失败: ${error.message}`;
+    }
   } else {
+    // 只在模态框关闭时清理数据
     nodes.value = [];
     searchTerm.value = '';
     selectedNodes.value.clear();
     errorMessage.value = '';
+    latencyResults.value.clear();
   }
 });
 
@@ -276,11 +283,19 @@ const refreshNodes = async () => {
 </script>
 
 <template>
-  <div v-if="show" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99] flex items-center justify-center p-4" @click="emit('update:show', false)">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl text-left ring-1 ring-black/5 dark:ring-white/10 flex flex-col max-h-[85vh]" @click.stop>
+  <div v-if="show" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99] flex items-center justify-center p-4" @click.self="emit('update:show', false)">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl text-left ring-1 ring-black/5 dark:ring-white/10 flex flex-col max-h-[85vh]">
       <!-- 标题 -->
-      <div class="p-6 pb-4 flex-shrink-0">
+      <div class="p-6 pb-4 flex-shrink-0 flex items-center justify-between">
         <h3 class="text-lg font-bold text-gray-900 dark:text-white">节点详情</h3>
+        <button 
+          @click="emit('update:show', false)"
+          class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+        >
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
       
       <!-- 内容 -->
