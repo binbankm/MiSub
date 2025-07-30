@@ -201,7 +201,7 @@ const expiryInfo = computed(() => {
           <span v-if="expiryInfo" class="text-xs font-medium" :class="expiryInfo.style">{{ expiryInfo.daysRemaining }}</span>
         </div>
       <div class="flex items-center space-x-3">
-        <span class="text-sm font-semibold" :class="misub.isUpdating ? 'text-yellow-500 animate-pulse' : 'text-gray-700 dark:text-gray-300'">{{ misub.isUpdating ? '更新中...' : `${misub.nodeCount} Nodes` }}</span>
+        <span class="text-sm font-semibold" :class="misub.isUpdating ? 'text-yellow-500 animate-pulse' : 'text-gray-700 dark:text-gray-300'">{{ misub.isUpdating ? '更新中...' : `${misub.nodeCount} 节点` }}</span>
         <button @click.stop="emit('showNodes')" class="text-sm font-semibold px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm flex items-center gap-2" title="显示节点信息">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

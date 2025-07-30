@@ -89,12 +89,16 @@ const isUpdatingAllSubs = ref(false);
 
 const nodesMoreMenuRef = ref(null);
 const subsMoreMenuRef = ref(null);
+const profilesMoreMenuRef = ref(null);
 const handleClickOutside = (event) => {
   if (showNodesMoreMenu.value && nodesMoreMenuRef.value && !nodesMoreMenuRef.value.contains(event.target)) {
     showNodesMoreMenu.value = false;
   }
   if (showSubsMoreMenu.value && subsMoreMenuRef.value && !subsMoreMenuRef.value.contains(event.target)) {
     showSubsMoreMenu.value = false;
+  }
+  if (showProfilesMoreMenu.value && profilesMoreMenuRef.value && !profilesMoreMenuRef.value.contains(event.target)) {
+    showProfilesMoreMenu.value = false;
   }
 };
 // 新增一个处理函数来调用去重逻辑
@@ -710,18 +714,17 @@ const handleNodeDragEnd = async (evt) => {
               <span class="px-2.5 py-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700/50 rounded-full">{{ profiles.length }}</span>
             </div>
             <div class="flex items-center gap-2">
-              <button @click="showDeleteProfilesModal = true" class="hidden md:inline-flex text-sm font-medium px-3 py-1.5 rounded-lg text-red-500 border-2 border-red-500/60 hover:bg-red-500 hover:text-white dark:text-red-400 dark:border-red-400/60 dark:hover:bg-red-400 dark:hover:text-white transition-all">清空</button>
-              <button @click="handleAddProfile" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm">新增</button>
-              <div class="relative md:hidden" v-on:mouseleave="showProfilesMoreMenu = false">
-                <button @click="showProfilesMoreMenu = !showProfilesMoreMenu" class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
+              <div class="relative" ref="profilesMoreMenuRef">
+                <button @click="showProfilesMoreMenu = !showProfilesMoreMenu" class="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
                 </button>
-                 <Transition name="slide-fade-sm">
+                <Transition name="slide-fade-sm">
                   <div v-if="showProfilesMoreMenu" class="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-10 ring-1 ring-black ring-opacity-5">
-                    <button @click="showDeleteProfilesModal = true; showProfilesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">清空</button>
+                    <button @click="showDeleteProfilesModal = true; showProfilesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10">清空所有</button>
                   </div>
                 </Transition>
               </div>
+              <button @click="handleAddProfile" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm">新增</button>
             </div>
           </div>
           <div v-if="profiles.length > 0" class="space-y-4">
