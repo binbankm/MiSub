@@ -174,6 +174,8 @@ const handleSave = async () => {
     if (result.success) {
         saveState.value = 'success';
         showToast('保存成功！', 'success');
+        // 保存成功后自动退出排序模式
+        isSortingSubs.value = false;
         setTimeout(() => { dirty.value = false; saveState.value = 'idle'; }, 1500);
     } else {
         // 显示服务器返回的具体错误信息
