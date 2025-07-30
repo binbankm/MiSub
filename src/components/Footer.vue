@@ -13,7 +13,7 @@ const currentYear = computed(() => new Date().getFullYear());
         target="_blank" 
         class="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
       >
-        MiSUB
+                  MYSUB
       </a>.
       All Rights Reserved.
     </p>

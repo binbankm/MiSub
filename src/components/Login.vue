@@ -39,7 +39,7 @@ const submitLogin = async () => {
               <path d="M64 78a14 14 0 1 1 14-14a14 14 0 0 1-14 14Zm0-22a8 8 0 1 0 8 8a8 8 0 0 0-8-8Z"/>
           </svg>
         </div>
-        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">MISUB</h1>
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">MYSUB</h1>
         <p class="mt-2 text-sm text-gray-500">请输入管理员密码</p>
       </div>
 

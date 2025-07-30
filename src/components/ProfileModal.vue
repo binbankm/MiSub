@@ -257,7 +257,7 @@ const handleDeselectAll = (listName, sourceArray) => {
 
             <div v-if="allSubscriptions.length > 0" class="space-y-2">
               <div class="flex justify-between items-center mb-2">
-                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">选择机场订阅</h4>
+                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">选择订阅</h4>
                 <div class="space-x-2">
                     <button @click="handleSelectAll('subscriptions', filteredSubscriptions)" class="text-xs text-indigo-600 hover:underline">全选</button>
                     <button @click="handleDeselectAll('subscriptions', filteredSubscriptions)" class="text-xs text-indigo-600 hover:underline">全不选</button>
@@ -290,7 +290,7 @@ const handleDeselectAll = (listName, sourceArray) => {
               </div>
             </div>
             <div v-else class="text-center text-sm text-gray-500 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg flex items-center justify-center h-full">
-              没有可用的机场订阅
+                                没有可用的订阅
             </div>
 
             <div v-if="allManualNodes.length > 0" class="space-y-2">
