@@ -145,10 +145,6 @@ const expiryInfo = computed(() => {
           <p class="font-bold text-lg text-gray-800 dark:text-gray-100 truncate" :title="misub.name || '未命名订阅'">
             {{ misub.name || '未命名订阅' }}
           </p>
-          <svg class="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
         </div>
       </div>
       
@@ -162,10 +158,10 @@ const expiryInfo = computed(() => {
       <div class="relative">
         <input 
           type="text" 
-          :value="misub.url" 
+          :value="showUrl ? misub.url : '••••••••••••••••••••••••••••••••••••••••'"
           readonly 
           class="w-full text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800/50 rounded-lg px-3 py-2 focus:outline-none font-mono" 
-          :class="{ 'blur-sm select-none': !showUrl }"
+          :class="{ 'select-none': !showUrl }"
         />
         <div class="flex items-center gap-2 mt-2">
           <button 
