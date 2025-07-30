@@ -14,7 +14,8 @@ import ManualNodeCard from './ManualNodeCard.vue';
 import RightPanel from './RightPanel.vue';
 import ProfileCard from './ProfileCard.vue';
 import ManualNodeList from './ManualNodeList.vue'; 
-import SubscriptionImportModal from './SubscriptionImportModal.vue'; 
+import SubscriptionImportModal from './SubscriptionImportModal.vue';
+import NodeDetailsModal from './NodeDetailsModal.vue'; 
 
 const SettingsModal = defineAsyncComponent(() => import('./SettingsModal.vue'));
 const BulkImportModal = defineAsyncComponent(() => import('./BulkImportModal.vue'));
@@ -79,6 +80,8 @@ const showSubsMoreMenu = ref(false);
 const showNodesMoreMenu = ref(false);
 const showProfilesMoreMenu = ref(false);
 const showSubscriptionImportModal = ref(false);
+const showNodeDetailsModal = ref(false);
+const selectedSubscription = ref(null);
 
 const nodesMoreMenuRef = ref(null);
 const subsMoreMenuRef = ref(null);
@@ -361,6 +364,11 @@ const formatBytes = (bytes, decimals = 2) => {
 };
 const formattedTotalRemainingTraffic = computed(() => formatBytes(totalRemainingTraffic.value));
 
+const handleShowNodeDetails = (subscription) => {
+    selectedSubscription.value = subscription;
+    showNodeDetailsModal.value = true;
+};
+
 </script>
 
 <template>
@@ -439,7 +447,8 @@ const formattedTotalRemainingTraffic = computed(() => formatBytes(totalRemaining
                         @delete="handleDeleteSubscriptionWithCleanup(subscription.id)" 
                         @change="markDirty" 
                         @update="handleUpdateNodeCount(subscription.id)" 
-                        @edit="handleEditSubscription(subscription.id)" />
+                        @edit="handleEditSubscription(subscription.id)"
+                        @showNodes="handleShowNodeDetails(subscription)" />
                 </div>
               </template>
             </draggable>
@@ -450,7 +459,8 @@ const formattedTotalRemainingTraffic = computed(() => formatBytes(totalRemaining
                         @delete="handleDeleteSubscriptionWithCleanup(subscription.id)" 
                         @change="markDirty" 
                         @update="handleUpdateNodeCount(subscription.id)" 
-                        @edit="handleEditSubscription(subscription.id)" />
+                        @edit="handleEditSubscription(subscription.id)"
+                        @showNodes="handleShowNodeDetails(subscription)" />
                 </div>
             </div>
             <div v-if="subsTotalPages > 1 && !isSortingSubs" class="flex justify-center items-center space-x-4 mt-8 text-sm font-medium">
@@ -644,6 +654,7 @@ const formattedTotalRemainingTraffic = computed(() => formatBytes(totalRemaining
   
   <SettingsModal v-model:show="uiStore.isSettingsModalVisible" />
   <SubscriptionImportModal :show="showSubscriptionImportModal" @update:show="showSubscriptionImportModal = $event" :add-nodes-from-bulk="addNodesFromBulk" />
+  <NodeDetailsModal :show="showNodeDetailsModal" :subscription="selectedSubscription" @update:show="showNodeDetailsModal = $event" />
 </template>
 
 <style scoped>
