@@ -19,13 +19,20 @@ const toastStore = useToastStore();
 
 // 监听模态框显示状态
 watch(() => props.show, async (newVal) => {
+  console.log('Modal show state changed:', newVal, props.subscription);
   if (newVal && props.subscription) {
-    await fetchNodes();
+    try {
+      await fetchNodes();
+    } catch (error) {
+      console.error('Error in fetchNodes:', error);
+      errorMessage.value = `获取节点信息失败: ${error.message}`;
+    }
   } else {
     nodes.value = [];
     searchTerm.value = '';
     selectedNodes.value.clear();
     errorMessage.value = '';
+    latencyResults.value.clear();
   }
 });
 
@@ -41,12 +48,17 @@ const filteredNodes = computed(() => {
 
 // 获取节点信息
 const fetchNodes = async () => {
-  if (!props.subscription?.url) return;
+  console.log('fetchNodes called with subscription:', props.subscription);
+  if (!props.subscription?.url) {
+    console.log('No subscription URL provided');
+    return;
+  }
   
   isLoading.value = true;
   errorMessage.value = '';
   
   try {
+    console.log('Fetching from URL:', props.subscription.url);
     const response = await fetch('/api/fetch_external_url', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -58,7 +70,9 @@ const fetchNodes = async () => {
     }
     
     const content = await response.text();
+    console.log('Received content length:', content.length);
     const parsedNodes = parseNodes(content);
+    console.log('Parsed nodes count:', parsedNodes.length);
     nodes.value = parsedNodes;
     
   } catch (error) {
@@ -207,7 +221,7 @@ const parseNodeLine = (line) => {
   const protocol = line.match(nodeRegex)?.[1] || 'unknown';
   
   return {
-    id: crypto.randomUUID(),
+    id: Math.random().toString(36).substr(2, 9) + Date.now().toString(36),
     name: name || '未命名节点',
     url: line,
     protocol: protocol,
