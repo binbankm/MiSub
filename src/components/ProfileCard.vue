@@ -32,9 +32,8 @@ const totalNodeCount = computed(() => {
 
 <template>
   <div
-    class="group bg-white dark:bg-gray-900/60 backdrop-blur-sm rounded-2xl shadow-lg dark:shadow-2xl ring-1 ring-black/5 p-4 transition-all duration-300 hover:-translate-y-0.5 flex flex-col cursor-pointer"
+    class="group bg-white dark:bg-gray-900/60 backdrop-blur-sm rounded-2xl shadow-lg dark:shadow-2xl ring-1 ring-black/5 p-4 transition-all duration-300 hover:-translate-y-0.5 flex flex-col"
     :class="{ 'opacity-50': !profile.enabled }"
-    @click="emit('showNodes')"
   >
     <div class="flex items-start justify-between gap-3">
       <div class="w-full truncate">
@@ -71,10 +70,19 @@ const totalNodeCount = computed(() => {
         <span class="ml-3 text-sm font-medium text-gray-600 dark:text-gray-300">{{ profile.enabled ? '已启用' : '已禁用' }}</span>
       </label>
 
-      <button @click.stop="emit('copy-link')" class="text-sm font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm flex items-center gap-2">
-         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-        复制
-      </button>
+      <div class="flex items-center gap-2">
+        <button @click.stop="emit('showNodes')" class="text-sm font-semibold px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-sm flex items-center gap-2" title="显示节点信息">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          显示节点
+        </button>
+        <button @click.stop="emit('copy-link')" class="text-sm font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm flex items-center gap-2">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+          复制
+        </button>
+      </div>
     </div>
   </div>
 </template>
