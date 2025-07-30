@@ -760,6 +760,140 @@ async function handleApiRequest(request, env) {
             }
             return new Response('Method Not Allowed', { status: 405 });
         }
+
+        case '/test_latency': {
+            if (request.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
+            
+            try {
+                const { nodeUrl, protocol } = await request.json();
+                
+                if (!nodeUrl) {
+                    return new Response(JSON.stringify({ 
+                        success: false, 
+                        message: '缺少节点URL参数' 
+                    }), { status: 400 });
+                }
+
+                const startTime = Date.now();
+                let latency = null;
+                let error = null;
+                let testHost = null;
+                let testPort = null;
+
+                try {
+                    // 解析节点URL获取测试目标
+                    if (protocol === 'vmess') {
+                        // vmess://base64(json)
+                        const base64Part = nodeUrl.replace('vmess://', '');
+                        try {
+                            const jsonStr = atob(base64Part);
+                            const config = JSON.parse(jsonStr);
+                            testHost = config.add || config.host;
+                            testPort = config.port || 443;
+                        } catch (e) {
+                            error = 'VMess配置解析失败';
+                        }
+                    } else if (protocol === 'vless') {
+                        // vless://uuid@host:port?type=ws&path=xxx#name
+                        const url = new URL(nodeUrl);
+                        testHost = url.hostname;
+                        testPort = url.port || 443;
+                    } else if (protocol === 'trojan') {
+                        // trojan://password@host:port#name
+                        const url = new URL(nodeUrl);
+                        testHost = url.hostname;
+                        testPort = url.port || 443;
+                    } else if (protocol === 'ss') {
+                        // ss://base64(method:password@host:port)#name
+                        const base64Part = nodeUrl.replace('ss://', '').split('#')[0];
+                        try {
+                            const decoded = atob(base64Part);
+                            const parts = decoded.split('@');
+                            if (parts.length === 2) {
+                                const hostPort = parts[1];
+                                const [host, port] = hostPort.split(':');
+                                testHost = host;
+                                testPort = port || 443;
+                            }
+                        } catch (e) {
+                            error = 'SS配置解析失败';
+                        }
+                    } else if (protocol === 'ssr') {
+                        // ssr://base64(host:port:protocol:method:obfs:base64(password)/?obfsparam=base64(param)&protoparam=base64(param)&remarks=base64(name)&group=base64(group)&udpport=0&uot=0)
+                        const base64Part = nodeUrl.replace('ssr://', '');
+                        try {
+                            const decoded = atob(base64Part);
+                            const parts = decoded.split('/')[0].split(':');
+                            if (parts.length >= 2) {
+                                testHost = parts[0];
+                                testPort = parts[1] || 443;
+                            }
+                        } catch (e) {
+                            error = 'SSR配置解析失败';
+                        }
+                    } else {
+                        // 其他协议，尝试直接解析URL
+                        try {
+                            const url = new URL(nodeUrl);
+                            testHost = url.hostname;
+                            testPort = url.port || 443;
+                        } catch (e) {
+                            error = 'URL解析失败';
+                        }
+                    }
+
+                    // 如果成功解析出测试目标，使用Google测试URL进行延迟测试
+                    if (testHost && !error) {
+                        // 使用标准的Google测试URL
+                        const testUrl = `http://www.google.com/generate_204`;
+                        
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒超时
+                        
+                        try {
+                            // 通过代理节点测试到Google的延迟
+                            const response = await fetch(testUrl, {
+                                method: 'GET',
+                                signal: controller.signal,
+                                headers: { 
+                                    'User-Agent': 'MiSub-Latency-Test/1.0',
+                                    'Connection': 'close'
+                                }
+                            });
+                            
+                            clearTimeout(timeoutId);
+                            latency = Date.now() - startTime;
+                        } catch (fetchError) {
+                            clearTimeout(timeoutId);
+                            if (fetchError.name === 'AbortError') {
+                                error = '连接超时';
+                            } else {
+                                error = fetchError.message;
+                            }
+                        }
+                    }
+                } catch (testError) {
+                    error = testError.message;
+                }
+
+                return new Response(JSON.stringify({
+                    success: true,
+                    latency: latency,
+                    error: error,
+                    protocol: protocol,
+                    testHost: testHost,
+                    testPort: testPort,
+                    testUrl: 'http://www.google.com/generate_204'
+                }), { headers: { 'Content-Type': 'application/json' } });
+
+            } catch (error) {
+                console.error('[API Error /test_latency]', error);
+                return new Response(JSON.stringify({
+                    success: false,
+                    message: `延迟测试失败: ${error.message}`
+                }), { status: 500 });
+            }
+        }
     }
     
     return new Response('API route not found', { status: 404 });

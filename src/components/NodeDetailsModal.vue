@@ -331,6 +331,20 @@ const refreshNodes = async () => {
                 <span v-else>刷新</span>
               </button>
               <button
+                @click="testAllNodesLatency"
+                :disabled="isTestingLatency || filteredNodes.length === 0"
+                class="px-3 py-2 text-sm bg-orange-600 hover:bg-orange-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+              >
+                <svg v-if="isTestingLatency" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <svg v-else class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>{{ isTestingLatency ? '测试中...' : '测试延迟' }}</span>
+              </button>
+              <button
                 @click="copySelectedNodes"
                 :disabled="selectedNodes.size === 0"
                 class="px-3 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
@@ -398,6 +412,19 @@ const refreshNodes = async () => {
                   <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-1" :title="node.url">
                     {{ node.url }}
                   </p>
+                </div>
+                
+                <!-- 延迟显示 -->
+                <div class="ml-3 text-right">
+                  <div v-if="getLatencyText(node.id)" 
+                       class="text-sm font-mono"
+                       :class="getLatencyStyle(node.id)">
+                    {{ getLatencyText(node.id) }}
+                  </div>
+                  <div v-else-if="isTestingLatency" 
+                       class="text-sm text-gray-400 dark:text-gray-500">
+                    测试中...
+                  </div>
                 </div>
               </div>
             </div>
