@@ -172,13 +172,14 @@ const handleSave = async () => {
 
     const result = await saveMisubs(combinedMisubs, profiles.value);
 
-    if (result.success) {
-        saveState.value = 'success';
-        showToast('保存成功！', 'success');
-        // 保存成功后自动退出排序模式
-        isSortingSubs.value = false;
-        setTimeout(() => { dirty.value = false; saveState.value = 'idle'; }, 1500);
-    } else {
+            if (result.success) {
+            saveState.value = 'success';
+            showToast('保存成功！', 'success');
+            // 保存成功后自动退出排序模式
+            isSortingSubs.value = false;
+            isSortingNodes.value = false;
+            setTimeout(() => { dirty.value = false; saveState.value = 'idle'; }, 1500);
+        } else {
         // 显示服务器返回的具体错误信息
         const errorMessage = result.message || result.error || '保存失败，请稍后重试';
         throw new Error(errorMessage);
@@ -448,6 +449,22 @@ const handleSubscriptionDragEnd = async (evt) => {
     });
 };
 
+const handleNodeDragEnd = async (evt) => {
+    // vuedraggable 已经自动更新了 manualNodes 数组
+    try {
+        await handleSave();
+        showToast('节点排序已保存', 'success');
+    } catch (error) {
+        console.error('保存节点排序失败:', error);
+        showToast('保存排序失败', 'error');
+    }
+    
+    console.log('拖拽排序完成:', {
+        newOrder: manualNodes.value.map(n => n.name),
+        totalNodes: manualNodes.value.length
+    });
+};
+
 </script>
 
 <template>
@@ -577,7 +594,7 @@ const handleSubscriptionDragEnd = async (evt) => {
               <h2 class="text-xl font-bold text-gray-900 dark:text-white">手动节点</h2>
               <span class="px-2.5 py-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700/50 rounded-full">{{ manualNodes.length }}</span>
             </div>
-            <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
               <div class="relative flex-grow">
                 <input 
                   type="text" 
@@ -598,6 +615,17 @@ const handleSubscriptionDragEnd = async (evt) => {
 
               <button @click="handleAddNode" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm flex-shrink-0">新增</button>
               
+              <button 
+                @click="isSortingNodes = !isSortingNodes" 
+                :class="isSortingNodes ? 'bg-gray-600 hover:bg-gray-700' : 'bg-red-500 hover:bg-red-600'"
+                class="text-sm font-semibold px-4 py-1.5 rounded-lg text-white transition-colors shadow-sm flex-shrink-0 flex items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                </svg>
+                <span>{{ isSortingNodes ? '排序中' : '手动排序' }}</span>
+              </button>
+              
               <div class="relative flex-shrink-0" ref="nodesMoreMenuRef">
                 <button @click="showNodesMoreMenu = !showNodesMoreMenu" class="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
@@ -607,8 +635,6 @@ const handleSubscriptionDragEnd = async (evt) => {
                     <button @click="showSubscriptionImportModal = true; showNodesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">导入订阅</button>
                     <button @click="handleAutoSortNodes(); showNodesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">一键排序</button>
                     <button @click="handleDeduplicateNodes" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">一键去重</button>
-                    <button v-if="!isSortingNodes" @click="isSortingNodes = true; showNodesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">手动排序</button>
-                    <button v-else @click="async () => { isSortingNodes = false; await handleDirectSave('节点排序'); showNodesMoreMenu=false; }" class="w-full text-left px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700">完成排序</button>
                     <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                     <button @click="showDeleteNodesModal = true; showNodesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10">清空所有</button>
                   </div>
@@ -625,7 +651,9 @@ const handleSubscriptionDragEnd = async (evt) => {
                 v-model="manualNodes" 
                 :item-key="item => item.id" 
                 animation="300" 
-                @end="async () => { await handleDirectSave('节点排序'); }"
+                :delay="200"
+                :delay-on-touch-only="true"
+                @end="handleNodeDragEnd"
               >
                 <template #item="{ element: node }">
                    <div class="cursor-move">
