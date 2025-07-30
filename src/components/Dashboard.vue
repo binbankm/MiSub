@@ -479,7 +479,7 @@ const handleSubscriptionDragEnd = (evt) => {
               </button>
               <button 
                 @click="isSortingSubs = !isSortingSubs" 
-                :class="isSortingSubs ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-600 hover:bg-gray-700'"
+                :class="isSortingSubs ? 'bg-gray-600 hover:bg-gray-700' : 'bg-red-500 hover:bg-red-600'"
                 class="text-sm font-semibold px-4 py-1.5 rounded-lg text-white transition-colors shadow-sm flex-shrink-0 flex items-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
