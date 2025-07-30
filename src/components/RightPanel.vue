@@ -109,7 +109,7 @@ onUnmounted(() => {
         <div class="flex items-center gap-2 mt-2">
           <button 
             @click="showUrl = !showUrl"
-            class="p-1.5 rounded-full hover:bg-gray-500/10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            class="p-1.5 rounded-full hover:bg-orange-500/20 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
             :title="showUrl ? '隐藏链接' : '显示链接'"
           >
             <svg v-if="showUrl" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,7 +123,7 @@ onUnmounted(() => {
           <button 
             v-if="showUrl"
             @click="copyToClipboard"
-            class="p-1.5 rounded-full hover:bg-gray-500/10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            class="p-1.5 rounded-full hover:bg-yellow-500/20 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
             :title="copied ? '已复制' : '复制'"
           >
             <Transition name="fade" mode="out-in">
