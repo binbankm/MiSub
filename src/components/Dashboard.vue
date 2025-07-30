@@ -782,7 +782,12 @@ const handleNodeDragEnd = async (evt) => {
   </Modal>
   
   <SettingsModal v-model:show="uiStore.isSettingsModalVisible" />
-  <SubscriptionImportModal :show="showSubscriptionImportModal" @update:show="showSubscriptionImportModal = $event" :add-nodes-from-bulk="addNodesFromBulk" />
+      <SubscriptionImportModal 
+      :show="showSubscriptionImportModal" 
+      @update:show="showSubscriptionImportModal = $event" 
+      :add-nodes-from-bulk="addNodesFromBulk"
+      :on-import-success="() => handleDirectSave('导入订阅')"
+    />
   <NodeDetailsModal :show="showNodeDetailsModal" :subscription="selectedSubscription" @update:show="showNodeDetailsModal = $event" />
   <ProfileNodeDetailsModal 
     :show="showProfileNodeDetailsModal" 

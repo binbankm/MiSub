@@ -8,6 +8,7 @@ import { extractNodeName } from '../lib/utils.js';
 const props = defineProps({
   show: Boolean,
   addNodesFromBulk: Function, // New prop
+  onImportSuccess: Function, // New prop for direct save
 });
 
 const emit = defineEmits(['update:show']);
@@ -127,6 +128,10 @@ const importSubscription = async () => {
 
     if (newNodes.length > 0) {
       props.addNodesFromBulk(newNodes);
+      // 调用直接保存函数
+      if (props.onImportSuccess) {
+        await props.onImportSuccess();
+      }
       toastStore.showToast(`成功添加了 ${newNodes.length} 个节点。`, 'success');
       emit('close');
     } else {
