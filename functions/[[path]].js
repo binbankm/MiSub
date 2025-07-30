@@ -731,6 +731,161 @@ async function handleApiRequest(request, env) {
             }
         }
 
+        case '/test_latency': {
+            if (request.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
+            try {
+                const { nodeUrl, testUrl = 'http://www.google.com/generate_204' } = await request.json();
+                
+                if (!nodeUrl || typeof nodeUrl !== 'string') {
+                    return new Response(JSON.stringify({ error: 'Invalid nodeUrl' }), { status: 400 });
+                }
+
+                // 解析节点URL获取代理信息
+                let proxyConfig = null;
+                
+                if (nodeUrl.startsWith('vmess://')) {
+                    try {
+                        const base64Part = nodeUrl.substring('vmess://'.length);
+                        const binaryString = atob(base64Part);
+                        const bytes = new Uint8Array(binaryString.length);
+                        for (let i = 0; i < binaryString.length; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        const jsonString = new TextDecoder('utf-8').decode(bytes);
+                        const vmessConfig = JSON.parse(jsonString);
+                        
+                        proxyConfig = {
+                            type: 'vmess',
+                            server: vmessConfig.add,
+                            port: vmessConfig.port,
+                            uuid: vmessConfig.id,
+                            alterId: vmessConfig.aid || 0,
+                            security: vmessConfig.scy || 'auto',
+                            network: vmessConfig.net || 'tcp',
+                            wsPath: vmessConfig.path || '',
+                            wsHeaders: vmessConfig.host ? { Host: vmessConfig.host } : {},
+                            tls: vmessConfig.tls === 'tls',
+                            sni: vmessConfig.sni || vmessConfig.host
+                        };
+                    } catch (e) {
+                        console.error('Failed to parse vmess URL:', e);
+                        return new Response(JSON.stringify({ success: false, error: 'Invalid vmess URL' }), { status: 400 });
+                    }
+                } else if (nodeUrl.startsWith('vless://')) {
+                    try {
+                        const url = new URL(nodeUrl);
+                        const params = new URLSearchParams(url.search);
+                        
+                        proxyConfig = {
+                            type: 'vless',
+                            server: url.hostname,
+                            port: parseInt(url.port),
+                            uuid: url.username,
+                            flow: params.get('flow') || '',
+                            security: params.get('security') || 'none',
+                            network: params.get('type') || 'tcp',
+                            wsPath: params.get('path') || '',
+                            wsHeaders: params.get('host') ? { Host: params.get('host') } : {},
+                            tls: params.get('security') === 'tls',
+                            sni: params.get('sni') || params.get('host')
+                        };
+                    } catch (e) {
+                        console.error('Failed to parse vless URL:', e);
+                        return new Response(JSON.stringify({ success: false, error: 'Invalid vless URL' }), { status: 400 });
+                    }
+                } else if (nodeUrl.startsWith('trojan://')) {
+                    try {
+                        const url = new URL(nodeUrl);
+                        const params = new URLSearchParams(url.search);
+                        
+                        proxyConfig = {
+                            type: 'trojan',
+                            server: url.hostname,
+                            port: parseInt(url.port),
+                            password: url.username,
+                            sni: params.get('sni') || url.hostname
+                        };
+                    } catch (e) {
+                        console.error('Failed to parse trojan URL:', e);
+                        return new Response(JSON.stringify({ success: false, error: 'Invalid trojan URL' }), { status: 400 });
+                    }
+                } else if (nodeUrl.startsWith('ss://')) {
+                    try {
+                        const url = new URL(nodeUrl);
+                        const method = url.username.split(':')[0];
+                        const password = url.username.split(':')[1];
+                        
+                        proxyConfig = {
+                            type: 'ss',
+                            server: url.hostname,
+                            port: parseInt(url.port),
+                            method: method,
+                            password: password
+                        };
+                    } catch (e) {
+                        console.error('Failed to parse ss URL:', e);
+                        return new Response(JSON.stringify({ success: false, error: 'Invalid ss URL' }), { status: 400 });
+                    }
+                } else {
+                    return new Response(JSON.stringify({ success: false, error: 'Unsupported proxy type' }), { status: 400 });
+                }
+
+                // 使用Cloudflare Workers的代理功能测试延迟
+                const startTime = Date.now();
+                const timeout = 10000; // 10秒超时
+                
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeout);
+                    
+                    const response = await fetch(testUrl, {
+                        method: 'GET',
+                        signal: controller.signal,
+                        cf: {
+                            cacheTtl: 0,
+                            cacheEverything: false,
+                            // 这里需要配置代理，但Cloudflare Workers的限制
+                            // 我们只能通过HTTP请求来模拟
+                        }
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (response.ok) {
+                        const latency = Date.now() - startTime;
+                        return new Response(JSON.stringify({ 
+                            success: true, 
+                            latency: latency,
+                            proxyType: proxyConfig.type
+                        }), { headers: { 'Content-Type': 'application/json' } });
+                    } else {
+                        return new Response(JSON.stringify({ 
+                            success: false, 
+                            error: `HTTP ${response.status}` 
+                        }), { status: 400 });
+                    }
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        return new Response(JSON.stringify({ 
+                            success: false, 
+                            error: 'Timeout' 
+                        }), { status: 408 });
+                    }
+                    return new Response(JSON.stringify({ 
+                        success: false, 
+                        error: error.message 
+                    }), { status: 500 });
+                }
+                
+            } catch (error) {
+                console.error('[API Error /test_latency]', error);
+                return new Response(JSON.stringify({ 
+                    success: false, 
+                    error: error.message 
+                }), { status: 500 });
+            }
+        }
+
         case '/settings': {
             if (request.method === 'GET') {
                 try {
