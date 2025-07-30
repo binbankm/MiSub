@@ -714,6 +714,7 @@ const handleNodeDragEnd = async (evt) => {
               <span class="px-2.5 py-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700/50 rounded-full">{{ profiles.length }}</span>
             </div>
             <div class="flex items-center gap-2">
+              <button @click="handleAddProfile" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm">新增</button>
               <div class="relative" ref="profilesMoreMenuRef">
                 <button @click="showProfilesMoreMenu = !showProfilesMoreMenu" class="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
@@ -724,7 +725,6 @@ const handleNodeDragEnd = async (evt) => {
                   </div>
                 </Transition>
               </div>
-              <button @click="handleAddProfile" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm">新增</button>
             </div>
           </div>
           <div v-if="profiles.length > 0" class="space-y-4">

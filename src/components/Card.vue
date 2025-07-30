@@ -26,6 +26,17 @@ const copyUrl = async () => {
 
 // URL显示状态
 const showUrl = ref(false);
+const isTogglingUrl = ref(false);
+
+// 防抖切换URL显示状态
+const toggleUrlVisibility = () => {
+  if (isTogglingUrl.value) return;
+  isTogglingUrl.value = true;
+  showUrl.value = !showUrl.value;
+  setTimeout(() => {
+    isTogglingUrl.value = false;
+  }, 300);
+};
 
 // 鼠标事件处理
 const mouseDownTime = ref(0);
@@ -163,9 +174,11 @@ const expiryInfo = computed(() => {
           :class="{ 'blur-sm select-none': !showUrl }"
         />
         <button 
-          @click.stop="showUrl = !showUrl"
-          class="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          @click.stop="toggleUrlVisibility"
+          class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200"
+          :class="{ 'bg-gray-200 dark:bg-gray-700': isTogglingUrl }"
           :title="showUrl ? '隐藏链接' : '显示链接'"
+          :disabled="isTogglingUrl"
         >
           <svg v-if="showUrl" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
@@ -178,7 +191,7 @@ const expiryInfo = computed(() => {
         <button 
           v-if="showUrl"
           @click.stop="copyUrl"
-          class="absolute right-8 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          class="absolute right-8 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-all duration-200"
           title="复制链接"
         >
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
