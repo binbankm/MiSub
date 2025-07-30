@@ -404,6 +404,11 @@ const handleSubscriptionToggle = async (subscription) => {
     await handleDirectSave(`${subscription.name || '订阅'} 状态`);
 };
 
+const handleSubscriptionUpdate = async (subscriptionId) => {
+    await handleUpdateNodeCount(subscriptionId);
+    await handleDirectSave('订阅更新');
+};
+
 const handleUpdateAllSubscriptions = async () => {
     if (isUpdatingAllSubs.value) return;
     
@@ -562,7 +567,7 @@ const handleNodeDragEnd = async (evt) => {
                         :misub="subscription" 
                         @delete="handleDeleteSubscriptionWithCleanup(subscription.id)" 
                         @change="handleSubscriptionToggle(subscription)" 
-                        @update="handleUpdateNodeCount(subscription.id)" 
+                        @update="handleSubscriptionUpdate(subscription.id)" 
                         @edit="handleEditSubscription(subscription.id)"
                         @showNodes="handleShowNodeDetails(subscription)" />
                 </div>
@@ -574,7 +579,7 @@ const handleNodeDragEnd = async (evt) => {
                         :misub="subscription" 
                         @delete="handleDeleteSubscriptionWithCleanup(subscription.id)" 
                         @change="handleSubscriptionToggle(subscription)" 
-                        @update="handleUpdateNodeCount(subscription.id)" 
+                        @update="handleSubscriptionUpdate(subscription.id)" 
                         @edit="handleEditSubscription(subscription.id)"
                         @showNodes="handleShowNodeDetails(subscription)" />
                 </div>

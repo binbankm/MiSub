@@ -63,7 +63,6 @@ export function useSubscriptions(initialSubsRef, markDirty) {
       
       if (!isInitialLoad) {
         showToast(`${subToUpdate.name || '订阅'} 更新成功！`, 'success');
-        markDirty();
       }
     } catch (error) {
       if (!isInitialLoad) showToast(`${subToUpdate.name || '订阅'} 更新失败`, 'error');
@@ -77,7 +76,6 @@ export function useSubscriptions(initialSubsRef, markDirty) {
     subscriptions.value.unshift(sub);
     subsCurrentPage.value = 1;
     handleUpdateNodeCount(sub.id); // 新增時自動更新單個
-    markDirty();
   }
 
   function updateSubscription(updatedSub) {
@@ -88,7 +86,6 @@ export function useSubscriptions(initialSubsRef, markDirty) {
         handleUpdateNodeCount(updatedSub.id); // URL 變更時自動更新單個
       }
       subscriptions.value[index] = updatedSub;
-      markDirty();
     }
   }
 
@@ -97,20 +94,17 @@ export function useSubscriptions(initialSubsRef, markDirty) {
     if (paginatedSubscriptions.value.length === 0 && subsCurrentPage.value > 1) {
       subsCurrentPage.value--;
     }
-    markDirty();
   }
 
   function deleteAllSubscriptions() {
     subscriptions.value = [];
     subsCurrentPage.value = 1;
-    markDirty();
   }
   
   // {{ AURA-X: Modify - 使用批量更新API优化批量导入. Approval: 寸止(ID:1735459200). }}
   // [优化] 批量導入使用批量更新API，减少KV写入次数
   async function addSubscriptionsFromBulk(subs) {
     subscriptions.value.unshift(...subs);
-    markDirty();
 
     // 过滤出需要更新的订阅（只有http/https链接）
     const subsToUpdate = subs.filter(sub => sub.url && sub.url.startsWith('http'));
@@ -135,7 +129,6 @@ export function useSubscriptions(initialSubsRef, markDirty) {
 
           const successCount = result.results.filter(r => r.success).length;
           showToast(`批量更新完成！成功更新 ${successCount}/${subsToUpdate.length} 个订阅`, 'success');
-          markDirty(); // 标记需要保存
         } else {
           showToast(`批量更新失败: ${result.message}`, 'error');
           // 降级到逐个更新

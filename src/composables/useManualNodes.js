@@ -123,14 +123,12 @@ export function useManualNodes(initialNodesRef, markDirty) {
   function addNode(node) {
     manualNodes.value.unshift(node);
     manualNodesCurrentPage.value = 1;
-    markDirty();
   }
 
   function updateNode(updatedNode) {
     const index = manualNodes.value.findIndex(n => n.id === updatedNode.id);
     if (index !== -1) {
       manualNodes.value[index] = updatedNode;
-      markDirty();
     }
   }
 
@@ -139,18 +137,15 @@ export function useManualNodes(initialNodesRef, markDirty) {
     if (paginatedManualNodes.value.length === 0 && manualNodesCurrentPage.value > 1) {
       manualNodesCurrentPage.value--;
     }
-    markDirty();
   }
 
   function deleteAllNodes() {
     manualNodes.value = [];
     manualNodesCurrentPage.value = 1;
-    markDirty();
   }
 
   function addNodesFromBulk(nodes) {
     manualNodes.value.unshift(...nodes);
-    markDirty();
   }
   const getUniqueKey = (url) => {
     try {
@@ -205,8 +200,7 @@ export function useManualNodes(initialNodesRef, markDirty) {
     const removedCount = originalCount - uniqueNodes.length;
 
     if (removedCount > 0) {
-      showToast(`成功移除 ${removedCount} 个重复节点，请记得保存。`, 'success');
-      markDirty();
+      showToast(`成功移除 ${removedCount} 个重复节点。`, 'success');
     } else {
       showToast('没有发现重复的节点。', 'info');
     }
@@ -227,8 +221,6 @@ export function useManualNodes(initialNodesRef, markDirty) {
         if (effectiveIndexA !== effectiveIndexB) return effectiveIndexA - effectiveIndexB;
         return a.name.localeCompare(b.name, 'zh-CN');
     });
-    // [修正] 只標記為 dirty，不呼叫 handleSave
-    markDirty();
   }
 
     // [新增] 监听搜索词变化，重置分页
