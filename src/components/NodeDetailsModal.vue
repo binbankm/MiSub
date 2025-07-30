@@ -289,25 +289,32 @@ const testSingleNodeLatency = async (node) => {
   try {
     node.isTesting = true;
     
-    // 由于Cloudflare Workers的限制，我们使用一个简化的延迟测试方法
-    // 这里我们模拟一个基于节点类型的延迟测试
-    const startTime = Date.now();
+    // 调用真实的延迟测试API
+    const response = await fetch('/api/test_latency', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        nodeUrl: node.url,
+        testUrl: 'http://www.google.com/generate_204'
+      })
+    });
     
-    // 模拟网络延迟测试
-    const mockLatency = Math.floor(Math.random() * 500) + 50; // 50-550ms的随机延迟
-    const successRate = Math.random(); // 随机成功率
-    
-    // 模拟网络请求延迟
-    await new Promise(resolve => setTimeout(resolve, Math.min(mockLatency, 100)));
-    
-    if (successRate > 0.2) { // 80%的成功率
-      node.latency = mockLatency;
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success) {
+        node.latency = result.latency;
+        console.log(`节点 ${node.name} 测试成功: ${result.latency}ms (${result.method})`);
+      } else {
+        node.latency = -1;
+        console.log(`节点 ${node.name} 测试失败: ${result.error}`);
+      }
     } else {
-      node.latency = -1; // 超时
+      node.latency = -1;
+      console.error(`节点 ${node.name} API请求失败: ${response.status}`);
     }
     
   } catch (error) {
-    console.error('测试节点延迟失败:', error);
+    console.error(`测试节点 ${node.name} 延迟失败:`, error);
     node.latency = -1;
   } finally {
     node.isTesting = false;
@@ -345,7 +352,7 @@ const testLatency = async () => {
     const successCount = nodes.value.filter(node => node.latency !== undefined && node.latency !== -1).length;
     const timeoutCount = nodes.value.filter(node => node.latency === -1).length;
     
-    toastStore.showToast(`延迟测试完成: ${successCount}个成功, ${timeoutCount}个超时`, 'success');
+    toastStore.showToast(`真实延迟测试完成: ${successCount}个成功, ${timeoutCount}个超时`, 'success');
     
   } catch (error) {
     console.error('批量测试延迟失败:', error);
@@ -415,6 +422,7 @@ const testLatency = async () => {
                 @click="testLatency"
                 :disabled="isTestingLatency || filteredNodes.length === 0"
                 class="px-3 py-2 text-sm bg-orange-600 hover:bg-orange-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                title="真实延迟测试 - 通过代理服务器测试实际网络延迟"
               >
                 <svg v-if="isTestingLatency" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>

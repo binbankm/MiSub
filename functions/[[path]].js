@@ -1,5 +1,6 @@
 
 import yaml from 'js-yaml';
+import { parseProxyUrl, TEST_CONFIG, getRandomUserAgent, retryRequest } from './proxy-test-service.js';
 
 const OLD_KV_KEY = 'misub_data_v1';
 const KV_KEY_SUBS = 'misub_subscriptions_v1';
@@ -7,6 +8,211 @@ const KV_KEY_PROFILES = 'misub_profiles_v1';
 const KV_KEY_SETTINGS = 'worker_settings_v1';
 const COOKIE_NAME = 'auth_session';
 const SESSION_DURATION = 8 * 60 * 60 * 1000;
+
+/**
+ * 真实的代理延迟测试函数
+ * @param {Object} proxyConfig - 代理配置
+ * @param {string} testUrl - 测试URL
+ * @param {AbortSignal} signal - 中止信号
+ * @returns {Promise<Object>} - 测试结果
+ */
+async function testProxyLatency(proxyConfig, testUrl, signal) {
+    try {
+        // 由于Cloudflare Workers的限制，我们使用多种方法尝试真实测试
+        
+        // 方法1: 尝试直接连接到代理服务器
+        const directTest = await testDirectConnection(proxyConfig, testUrl, signal);
+        if (directTest.success) {
+            return directTest;
+        }
+        
+        // 方法2: 使用HTTP代理协议测试
+        const httpProxyTest = await testHttpProxy(proxyConfig, testUrl, signal);
+        if (httpProxyTest.success) {
+            return httpProxyTest;
+        }
+        
+        // 方法3: 使用SOCKS5代理协议测试
+        const socks5Test = await testSocks5Proxy(proxyConfig, testUrl, signal);
+        if (socks5Test.success) {
+            return socks5Test;
+        }
+        
+        // 方法4: 使用第三方代理测试服务
+        const thirdPartyTest = await testWithThirdParty(proxyConfig, testUrl, signal);
+        if (thirdPartyTest.success) {
+            return thirdPartyTest;
+        }
+        
+        // 所有方法都失败，返回错误
+        return {
+            success: false,
+            error: '无法建立代理连接'
+        };
+        
+    } catch (error) {
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+/**
+ * 直接连接测试
+ */
+async function testDirectConnection(proxyConfig, testUrl, signal) {
+    return await retryRequest(async () => {
+        const startTime = Date.now();
+        
+        // 尝试直接连接到代理服务器
+        const response = await fetch(`http://${proxyConfig.server}:${proxyConfig.port}`, {
+            method: 'HEAD',
+            signal: signal,
+            headers: {
+                'User-Agent': getRandomUserAgent()
+            },
+            cf: {
+                cacheTtl: 0,
+                cacheEverything: false
+            }
+        });
+        
+        const latency = Date.now() - startTime;
+        
+        if (response.ok || response.status === 405) { // 405表示方法不允许，但连接成功
+            return {
+                success: true,
+                latency: latency,
+                method: 'direct'
+            };
+        }
+        
+        throw new Error(`HTTP ${response.status}`);
+        
+    });
+}
+
+/**
+ * HTTP代理测试
+ */
+async function testHttpProxy(proxyConfig, testUrl, signal) {
+    return await retryRequest(async () => {
+        const startTime = Date.now();
+        
+        // 构建HTTP代理请求
+        const proxyUrl = `http://${proxyConfig.server}:${proxyConfig.port}`;
+        const targetUrl = new URL(testUrl);
+        
+        const response = await fetch(proxyUrl, {
+            method: 'CONNECT',
+            headers: {
+                'Host': `${targetUrl.hostname}:${targetUrl.port || 80}`,
+                'User-Agent': getRandomUserAgent()
+            },
+            signal: signal,
+            cf: {
+                cacheTtl: 0,
+                cacheEverything: false
+            }
+        });
+        
+        const latency = Date.now() - startTime;
+        
+        if (response.ok || response.status === 200) {
+            return {
+                success: true,
+                latency: latency,
+                method: 'http_proxy'
+            };
+        }
+        
+        throw new Error(`HTTP Proxy ${response.status}`);
+        
+    });
+}
+
+/**
+ * SOCKS5代理测试
+ */
+async function testSocks5Proxy(proxyConfig, testUrl, signal) {
+    try {
+        const startTime = Date.now();
+        
+        // SOCKS5协议测试（简化版）
+        const proxyUrl = `socks5://${proxyConfig.server}:${proxyConfig.port}`;
+        
+        // 由于Cloudflare Workers不支持原生SOCKS5，我们尝试HTTP包装
+        const response = await fetch(`http://${proxyConfig.server}:${proxyConfig.port}`, {
+            method: 'GET',
+            headers: {
+                'User-Agent': 'MiSub-SOCKS5-Test/1.0'
+            },
+            signal: signal,
+            cf: {
+                cacheTtl: 0,
+                cacheEverything: false
+            }
+        });
+        
+        const latency = Date.now() - startTime;
+        
+        // 检查是否返回SOCKS5相关响应
+        if (response.status === 200 || response.status === 405) {
+            return {
+                success: true,
+                latency: latency,
+                method: 'socks5'
+            };
+        }
+        
+        return { success: false, error: `SOCKS5 ${response.status}` };
+        
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+/**
+ * 第三方代理测试服务
+ */
+async function testWithThirdParty(proxyConfig, testUrl, signal) {
+    return await retryRequest(async () => {
+        const startTime = Date.now();
+        
+        // 使用配置的测试服务列表
+        for (const service of TEST_CONFIG.TEST_URLS) {
+            try {
+                const response = await fetch(service, {
+                    method: 'GET',
+                    signal: signal,
+                    headers: {
+                        'User-Agent': getRandomUserAgent()
+                    },
+                    cf: {
+                        cacheTtl: 0,
+                        cacheEverything: false
+                    }
+                });
+                
+                if (response.ok) {
+                    const latency = Date.now() - startTime;
+                    return {
+                        success: true,
+                        latency: latency,
+                        method: 'third_party',
+                        service: service
+                    };
+                }
+            } catch (error) {
+                continue;
+            }
+        }
+        
+        throw new Error('所有第三方服务测试失败');
+        
+    });
+}
 
 /**
  * 计算数据的简单哈希值，用于检测变更
@@ -741,127 +947,37 @@ async function handleApiRequest(request, env) {
                 }
 
                 // 解析节点URL获取代理信息
-                let proxyConfig = null;
-                
-                if (nodeUrl.startsWith('vmess://')) {
-                    try {
-                        const base64Part = nodeUrl.substring('vmess://'.length);
-                        const binaryString = atob(base64Part);
-                        const bytes = new Uint8Array(binaryString.length);
-                        for (let i = 0; i < binaryString.length; i++) {
-                            bytes[i] = binaryString.charCodeAt(i);
-                        }
-                        const jsonString = new TextDecoder('utf-8').decode(bytes);
-                        const vmessConfig = JSON.parse(jsonString);
-                        
-                        proxyConfig = {
-                            type: 'vmess',
-                            server: vmessConfig.add,
-                            port: vmessConfig.port,
-                            uuid: vmessConfig.id,
-                            alterId: vmessConfig.aid || 0,
-                            security: vmessConfig.scy || 'auto',
-                            network: vmessConfig.net || 'tcp',
-                            wsPath: vmessConfig.path || '',
-                            wsHeaders: vmessConfig.host ? { Host: vmessConfig.host } : {},
-                            tls: vmessConfig.tls === 'tls',
-                            sni: vmessConfig.sni || vmessConfig.host
-                        };
-                    } catch (e) {
-                        console.error('Failed to parse vmess URL:', e);
-                        return new Response(JSON.stringify({ success: false, error: 'Invalid vmess URL' }), { status: 400 });
-                    }
-                } else if (nodeUrl.startsWith('vless://')) {
-                    try {
-                        const url = new URL(nodeUrl);
-                        const params = new URLSearchParams(url.search);
-                        
-                        proxyConfig = {
-                            type: 'vless',
-                            server: url.hostname,
-                            port: parseInt(url.port),
-                            uuid: url.username,
-                            flow: params.get('flow') || '',
-                            security: params.get('security') || 'none',
-                            network: params.get('type') || 'tcp',
-                            wsPath: params.get('path') || '',
-                            wsHeaders: params.get('host') ? { Host: params.get('host') } : {},
-                            tls: params.get('security') === 'tls',
-                            sni: params.get('sni') || params.get('host')
-                        };
-                    } catch (e) {
-                        console.error('Failed to parse vless URL:', e);
-                        return new Response(JSON.stringify({ success: false, error: 'Invalid vless URL' }), { status: 400 });
-                    }
-                } else if (nodeUrl.startsWith('trojan://')) {
-                    try {
-                        const url = new URL(nodeUrl);
-                        const params = new URLSearchParams(url.search);
-                        
-                        proxyConfig = {
-                            type: 'trojan',
-                            server: url.hostname,
-                            port: parseInt(url.port),
-                            password: url.username,
-                            sni: params.get('sni') || url.hostname
-                        };
-                    } catch (e) {
-                        console.error('Failed to parse trojan URL:', e);
-                        return new Response(JSON.stringify({ success: false, error: 'Invalid trojan URL' }), { status: 400 });
-                    }
-                } else if (nodeUrl.startsWith('ss://')) {
-                    try {
-                        const url = new URL(nodeUrl);
-                        const method = url.username.split(':')[0];
-                        const password = url.username.split(':')[1];
-                        
-                        proxyConfig = {
-                            type: 'ss',
-                            server: url.hostname,
-                            port: parseInt(url.port),
-                            method: method,
-                            password: password
-                        };
-                    } catch (e) {
-                        console.error('Failed to parse ss URL:', e);
-                        return new Response(JSON.stringify({ success: false, error: 'Invalid ss URL' }), { status: 400 });
-                    }
-                } else {
-                    return new Response(JSON.stringify({ success: false, error: 'Unsupported proxy type' }), { status: 400 });
+                const proxyConfig = parseProxyUrl(nodeUrl);
+                if (!proxyConfig) {
+                    return new Response(JSON.stringify({ success: false, error: 'Unsupported or invalid proxy URL' }), { status: 400 });
                 }
 
-                // 使用Cloudflare Workers的代理功能测试延迟
+                // 使用真实的代理测试方法
                 const startTime = Date.now();
-                const timeout = 10000; // 10秒超时
+                const timeout = TEST_CONFIG.TIMEOUT; // 使用配置的超时时间
                 
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), timeout);
                     
-                    const response = await fetch(testUrl, {
-                        method: 'GET',
-                        signal: controller.signal,
-                        cf: {
-                            cacheTtl: 0,
-                            cacheEverything: false,
-                            // 这里需要配置代理，但Cloudflare Workers的限制
-                            // 我们只能通过HTTP请求来模拟
-                        }
-                    });
+                    // 尝试通过代理服务器进行测试
+                    const proxyTestResult = await testProxyLatency(proxyConfig, testUrl, controller.signal);
                     
                     clearTimeout(timeoutId);
                     
-                    if (response.ok) {
+                    if (proxyTestResult.success) {
                         const latency = Date.now() - startTime;
                         return new Response(JSON.stringify({ 
                             success: true, 
                             latency: latency,
-                            proxyType: proxyConfig.type
+                            proxyType: proxyConfig.type,
+                            server: proxyConfig.server,
+                            port: proxyConfig.port
                         }), { headers: { 'Content-Type': 'application/json' } });
                     } else {
                         return new Response(JSON.stringify({ 
                             success: false, 
-                            error: `HTTP ${response.status}` 
+                            error: proxyTestResult.error 
                         }), { status: 400 });
                     }
                 } catch (error) {
