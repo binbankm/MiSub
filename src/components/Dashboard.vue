@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue';
 import draggable from 'vuedraggable';
-import { saveMisubs } from '../lib/api.js';
+import { saveMisubs, batchUpdateNodes } from '../lib/api.js';
 import { extractNodeName } from '../lib/utils.js';
 import { useToastStore } from '../stores/toast.js';
 import { useUIStore } from '../stores/ui.js';
@@ -85,6 +85,7 @@ const showNodeDetailsModal = ref(false);
 const selectedSubscription = ref(null);
 const showProfileNodeDetailsModal = ref(false);
 const selectedProfile = ref(null);
+const isUpdatingAllSubs = ref(false);
 
 const nodesMoreMenuRef = ref(null);
 const subsMoreMenuRef = ref(null);
@@ -377,6 +378,35 @@ const handleShowProfileNodeDetails = (profile) => {
     showProfileNodeDetailsModal.value = true;
 };
 
+const handleUpdateAllSubscriptions = async () => {
+    if (isUpdatingAllSubs.value) return;
+    
+    const enabledSubs = subscriptions.value.filter(sub => sub.enabled && sub.url.startsWith('http'));
+    if (enabledSubs.length === 0) {
+        showToast('没有可更新的订阅', 'warning');
+        return;
+    }
+    
+    isUpdatingAllSubs.value = true;
+    
+    try {
+        const subscriptionIds = enabledSubs.map(sub => sub.id);
+        const result = await batchUpdateNodes(subscriptionIds);
+        
+        if (result.success) {
+            showToast(`成功更新了 ${enabledSubs.length} 个订阅`, 'success');
+            markDirty();
+        } else {
+            showToast(`更新失败: ${result.message}`, 'error');
+        }
+    } catch (error) {
+        console.error('批量更新订阅失败:', error);
+        showToast('批量更新失败', 'error');
+    } finally {
+        isUpdatingAllSubs.value = false;
+    }
+};
+
 </script>
 
 <template>
@@ -419,11 +449,22 @@ const handleShowProfileNodeDetails = (profile) => {
         <div>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
             <div class="flex items-center gap-3">
-              <h2 class="text-xl font-bold text-gray-900 dark:text-white">机场订阅</h2>
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white">订阅</h2>
               <span class="px-2.5 py-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700/50 rounded-full">{{ subscriptions.length }}</span>
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
               <button @click="handleAddSubscription" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm flex-shrink-0">新增</button>
+              <button 
+                @click="handleUpdateAllSubscriptions" 
+                :disabled="isUpdatingAllSubs"
+                class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors shadow-sm flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <svg v-if="isUpdatingAllSubs" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isUpdatingAllSubs ? '更新中...' : '一键更新' }}</span>
+              </button>
               <div class="relative flex-shrink-0" ref="subsMoreMenuRef">
                 <button @click="showSubsMoreMenu = !showSubsMoreMenu" class="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
