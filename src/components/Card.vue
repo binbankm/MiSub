@@ -114,7 +114,7 @@ const expiryInfo = computed(() => {
       </div>
     </div>
 
-    <div class="flex justify-between items-center mt-3">
+    <div class="flex justify-between items-center mt-3" @click.stop>
         <div class="flex items-center gap-2">
           <label class="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" v-model="misub.enabled" @change="emit('change')" class="sr-only peer">
