@@ -407,6 +407,16 @@ const handleUpdateAllSubscriptions = async () => {
     }
 };
 
+const handleSubscriptionDragEnd = (evt) => {
+    // vuedraggable 已经自动更新了 subscriptions 数组
+    markDirty();
+    
+    console.log('拖拽排序完成:', {
+        newOrder: subscriptions.value.map(s => s.name),
+        totalSubscriptions: subscriptions.value.length
+    });
+};
+
 </script>
 
 <template>
@@ -465,15 +475,22 @@ const handleUpdateAllSubscriptions = async () => {
                 </svg>
                 <span>{{ isUpdatingAllSubs ? '更新中...' : '一键更新' }}</span>
               </button>
+              <button 
+                @click="isSortingSubs = !isSortingSubs" 
+                :class="isSortingSubs ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-600 hover:bg-gray-700'"
+                class="text-sm font-semibold px-4 py-1.5 rounded-lg text-white transition-colors shadow-sm flex-shrink-0 flex items-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                </svg>
+                <span>{{ isSortingSubs ? '排序中' : '手动排序' }}</span>
+              </button>
               <div class="relative flex-shrink-0" ref="subsMoreMenuRef">
                 <button @click="showSubsMoreMenu = !showSubsMoreMenu" class="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
                 </button>
                 <Transition name="slide-fade-sm">
                   <div v-if="showSubsMoreMenu" class="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-10 ring-1 ring-black ring-opacity-5">
-                    <button v-if="!isSortingSubs" @click="isSortingSubs = true; showSubsMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">手动排序</button>
-                    <button v-else @click="() => { isSortingSubs = false; markDirty(); showSubsMoreMenu=false; }" class="w-full text-left px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700">完成排序</button>
-                    <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                     <button @click="showDeleteSubsModal = true; showSubsMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10">清空所有</button>
                   </div>
                 </Transition>
@@ -488,7 +505,9 @@ const handleUpdateAllSubscriptions = async () => {
               v-model="subscriptions" 
               :item-key="item => item.id"
               animation="300" 
-              @end="markDirty">
+              :delay="200"
+              :delay-on-touch-only="true"
+              @end="handleSubscriptionDragEnd">
               <template #item="{ element: subscription }">
                 <div class="cursor-move">
                     <Card 
