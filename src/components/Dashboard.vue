@@ -59,6 +59,7 @@ const showProfileModal = ref(false);
 const showDeleteProfilesModal = ref(false);
 
 // --- 排序狀態 ---
+const isSortingSubs = ref(false);
 const isSortingNodes = ref(false);
 
 const manualNodeViewMode = ref('card');
@@ -406,28 +407,6 @@ const handleUpdateAllSubscriptions = async () => {
     }
 };
 
-const handleSubscriptionDragEnd = (evt) => {
-    // 获取拖拽后的新顺序
-    const newOrder = evt.list;
-    const startIndex = (subsCurrentPage.value - 1) * 6; // 每页6个项目
-    
-    // 更新整个subscriptions数组
-    const newSubscriptions = [...subscriptions.value];
-    newOrder.forEach((sub, index) => {
-        newSubscriptions[startIndex + index] = sub;
-    });
-    
-    // 直接更新subscriptions数组
-    subscriptions.value.splice(0, subscriptions.value.length, ...newSubscriptions);
-    markDirty();
-    
-    console.log('拖拽排序完成:', {
-        newOrder: newOrder.map(s => s.name),
-        startIndex,
-        totalSubscriptions: subscriptions.value.length
-    });
-};
-
 </script>
 
 <template>
@@ -492,6 +471,8 @@ const handleSubscriptionDragEnd = (evt) => {
                 </button>
                 <Transition name="slide-fade-sm">
                   <div v-if="showSubsMoreMenu" class="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-10 ring-1 ring-black ring-opacity-5">
+                    <button v-if="!isSortingSubs" @click="isSortingSubs = true; showSubsMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">手动排序</button>
+                    <button v-else @click="() => { isSortingSubs = false; markDirty(); showSubsMoreMenu=false; }" class="w-full text-left px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700">完成排序</button>
                     <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                     <button @click="showDeleteSubsModal = true; showSubsMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10">清空所有</button>
                   </div>
@@ -501,14 +482,13 @@ const handleSubscriptionDragEnd = (evt) => {
           </div>
           <div v-if="subscriptions.length > 0">
             <draggable 
+              v-if="isSortingSubs" 
               tag="div" 
               class="grid grid-cols-1 md:grid-cols-2 gap-5" 
-              :list="paginatedSubscriptions" 
+              v-model="subscriptions" 
               :item-key="item => item.id"
               animation="300" 
-              :delay="200"
-              :delay-on-touch-only="true"
-              @end="handleSubscriptionDragEnd">
+              @end="markDirty">
               <template #item="{ element: subscription }">
                 <div class="cursor-move">
                     <Card 
@@ -521,11 +501,22 @@ const handleSubscriptionDragEnd = (evt) => {
                 </div>
               </template>
             </draggable>
-                          <div v-if="subsTotalPages > 1" class="flex justify-center items-center space-x-4 mt-8 text-sm font-medium">
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div v-for="subscription in paginatedSubscriptions" :key="subscription.id">
+                    <Card 
+                        :misub="subscription" 
+                        @delete="handleDeleteSubscriptionWithCleanup(subscription.id)" 
+                        @change="markDirty" 
+                        @update="handleUpdateNodeCount(subscription.id)" 
+                        @edit="handleEditSubscription(subscription.id)"
+                        @showNodes="handleShowNodeDetails(subscription)" />
+                </div>
+            </div>
+            <div v-if="subsTotalPages > 1 && !isSortingSubs" class="flex justify-center items-center space-x-4 mt-8 text-sm font-medium">
                 <button @click="changeSubsPage(subsCurrentPage - 1)" :disabled="subsCurrentPage === 1" class="px-3 py-1 rounded-md disabled:opacity-50 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700">&laquo; 上一页</button>
                 <span class="text-gray-500 dark:text-gray-400">第 {{ subsCurrentPage }} / {{ subsTotalPages }} 页</span>
                 <button @click="changeSubsPage(subsCurrentPage + 1)" :disabled="subsCurrentPage === subsTotalPages" class="px-3 py-1 rounded-md disabled:opacity-50 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700">下一页 &raquo;</button>
-              </div>
+            </div>
           </div>
           <div v-else class="text-center py-12 text-gray-500 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg><h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">没有机场订阅</h3><p class="mt-1 text-sm text-gray-500">从添加你的第一个订阅开始。</p></div>
         </div>
