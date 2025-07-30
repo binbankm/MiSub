@@ -101,10 +101,10 @@ onUnmounted(() => {
       <div class="relative">
         <input
           type="text"
-          :value="subLink"
+          :value="showUrl ? subLink : '••••••••••••••••••••••••••••••••••••••••'"
           readonly
           class="w-full text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800/50 rounded-lg px-3 py-2.5 focus:outline-none font-mono"
-          :class="{ 'blur-sm select-none': !showUrl }"
+          :class="{ 'select-none': !showUrl }"
         />
         <div class="flex items-center gap-2 mt-2">
           <button 
