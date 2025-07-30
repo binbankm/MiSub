@@ -605,6 +605,7 @@ const handleShowProfileNodeDetails = (profile) => {
               v-for="profile in profiles"
               :key="profile.id"
               :profile="profile"
+              :all-subscriptions="subscriptions"
               @edit="handleEditProfile(profile.id)"
               @delete="handleDeleteProfile(profile.id)"
               @change="handleProfileToggle($event)"

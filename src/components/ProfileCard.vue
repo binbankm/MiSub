@@ -6,13 +6,26 @@ const props = defineProps({
     type: Object,
     required: true
   },
+  allSubscriptions: {
+    type: Array,
+    default: () => []
+  },
 });
 
 const emit = defineEmits(['delete', 'change', 'edit', 'copy-link', 'showNodes']);
 
 // 计算实际的节点数量
 const totalNodeCount = computed(() => {
-  return props.profile.manualNodes.length;
+  // 手动节点数量
+  const manualNodeCount = props.profile.manualNodes.length;
+  
+  // 订阅节点数量
+  const subscriptionNodeCount = props.profile.subscriptions.reduce((total, subId) => {
+    const subscription = props.allSubscriptions.find(sub => sub.id === subId);
+    return total + (subscription?.nodeCount || 0);
+  }, 0);
+  
+  return manualNodeCount + subscriptionNodeCount;
 });
 
 </script>
