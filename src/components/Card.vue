@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
+import { useToastStore } from '../stores/toast.js';
 
 const props = defineProps({
   misub: {
@@ -10,20 +11,16 @@ const props = defineProps({
 
 const emit = defineEmits(['delete', 'change', 'update', 'edit', 'showNodes']);
 
+const toastStore = useToastStore();
+
 // 复制URL函数
 const copyUrl = async () => {
   try {
     await navigator.clipboard.writeText(props.misub.url);
-    // 可以添加一个简单的提示，比如改变按钮颜色
-    const button = event.target.closest('button');
-    if (button) {
-      button.classList.add('text-green-500');
-      setTimeout(() => {
-        button.classList.remove('text-green-500');
-      }, 1000);
-    }
+    toastStore.showToast('链接已复制到剪贴板', 'success');
   } catch (error) {
     console.error('复制失败:', error);
+    toastStore.showToast('复制失败', 'error');
   }
 };
 

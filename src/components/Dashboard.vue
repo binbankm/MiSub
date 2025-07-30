@@ -380,6 +380,18 @@ const handleShowProfileNodeDetails = (profile) => {
     showProfileNodeDetailsModal.value = true;
 };
 
+// 处理订阅开关的直接保存
+const handleSubscriptionToggle = async (subscription) => {
+    try {
+        // 直接保存更改
+        await handleSave();
+        showToast(`${subscription.name || '订阅'} 状态已更新`, 'success');
+    } catch (error) {
+        console.error('保存订阅状态失败:', error);
+        showToast('保存失败', 'error');
+    }
+};
+
 const handleUpdateAllSubscriptions = async () => {
     if (isUpdatingAllSubs.value) return;
     
@@ -515,7 +527,7 @@ const handleSubscriptionDragEnd = (evt) => {
                     <Card 
                         :misub="subscription" 
                         @delete="handleDeleteSubscriptionWithCleanup(subscription.id)" 
-                        @change="markDirty" 
+                        @change="handleSubscriptionToggle(subscription)" 
                         @update="handleUpdateNodeCount(subscription.id)" 
                         @edit="handleEditSubscription(subscription.id)"
                         @showNodes="handleShowNodeDetails(subscription)" />
@@ -527,7 +539,7 @@ const handleSubscriptionDragEnd = (evt) => {
                     <Card 
                         :misub="subscription" 
                         @delete="handleDeleteSubscriptionWithCleanup(subscription.id)" 
-                        @change="markDirty" 
+                        @change="handleSubscriptionToggle(subscription)" 
                         @update="handleUpdateNodeCount(subscription.id)" 
                         @edit="handleEditSubscription(subscription.id)"
                         @showNodes="handleShowNodeDetails(subscription)" />
