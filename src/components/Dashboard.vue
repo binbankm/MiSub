@@ -157,7 +157,7 @@ const handleDiscard = () => {
 };
 const handleSave = async () => {
   saveState.value = 'saving';
-  const combinedfixs = [
+  const combinedMisubs = [
       ...subscriptions.value.map(sub => ({ ...sub, isUpdating: undefined })),
       ...manualNodes.value.map(node => ({ ...node, isUpdating: undefined }))
   ];
@@ -407,11 +407,23 @@ const handleUpdateAllSubscriptions = async () => {
 };
 
 const handleSubscriptionDragEnd = (evt) => {
-    // 拖拽完成后，subscriptions数组已经被自动更新
+    // 获取拖拽后的新顺序
+    const newOrder = evt.list;
+    const startIndex = (subsCurrentPage.value - 1) * 6; // 每页6个项目
+    
+    // 更新整个subscriptions数组
+    const newSubscriptions = [...subscriptions.value];
+    newOrder.forEach((sub, index) => {
+        newSubscriptions[startIndex + index] = sub;
+    });
+    
+    // 直接更新subscriptions数组
+    subscriptions.value.splice(0, subscriptions.value.length, ...newSubscriptions);
     markDirty();
     
     console.log('拖拽排序完成:', {
-        newOrder: evt.list.map(s => s.name),
+        newOrder: newOrder.map(s => s.name),
+        startIndex,
         totalSubscriptions: subscriptions.value.length
     });
 };
@@ -491,7 +503,7 @@ const handleSubscriptionDragEnd = (evt) => {
             <draggable 
               tag="div" 
               class="grid grid-cols-1 md:grid-cols-2 gap-5" 
-              :list="subscriptions" 
+              :list="paginatedSubscriptions" 
               :item-key="item => item.id"
               animation="300" 
               :delay="200"
