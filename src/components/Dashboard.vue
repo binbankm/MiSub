@@ -499,22 +499,22 @@ const handleNodeDragEnd = async (evt) => {
     正在加载...
   </div>
   <div v-else class="w-full max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
-    <div class="flex justify-between items-center mb-8">
-      <div class="flex items-center gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 lg:mb-8 gap-4">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <h1 class="text-2xl font-bold text-gray-800 dark:text-white">仪表盘</h1>
         <span 
           v-if="formattedTotalRemainingTraffic !== '0 B'"
-          class="px-3 py-1 text-sm font-semibold text-green-700 bg-green-100 dark:text-green-300 dark:bg-green-500/20 rounded-full"
+          class="px-3 py-1 text-sm font-semibold text-green-700 bg-green-100 dark:text-green-300 dark:bg-green-500/20 rounded-full self-start sm:self-auto"
         >
           剩余总流量: {{ formattedTotalRemainingTraffic }}
         </span>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
         <button @click="showBulkImportModal = true" class="text-sm font-semibold px-4 py-2 rounded-lg text-indigo-600 dark:text-indigo-400 border-2 border-indigo-500/50 hover:bg-indigo-500/10 transition-colors">批量导入</button>
       </div>
     </div>
     <Transition name="slide-fade">
-      <div v-if="dirty" class="p-3 mb-6 rounded-lg bg-indigo-600/10 dark:bg-indigo-500/20 ring-1 ring-inset ring-indigo-600/20 flex items-center justify-between">
+      <div v-if="dirty" class="p-3 mb-4 lg:mb-6 rounded-lg bg-indigo-600/10 dark:bg-indigo-500/20 ring-1 ring-inset ring-indigo-600/20 flex items-center justify-between">
         <p class="text-sm font-medium text-indigo-800 dark:text-indigo-200">您有未保存的更改</p>
         <div class="flex items-center gap-3">
           <button @click="handleDiscard" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">放弃更改</button>
@@ -527,9 +527,9 @@ const handleNodeDragEnd = async (evt) => {
       </div>
     </Transition>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
       
-      <div class="lg:col-span-2 space-y-12">
+      <div class="lg:col-span-2 space-y-8 lg:space-y-12">
         
         <div>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
@@ -537,38 +537,44 @@ const handleNodeDragEnd = async (evt) => {
               <h2 class="text-xl font-bold text-gray-900 dark:text-white">订阅</h2>
               <span class="px-2.5 py-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700/50 rounded-full">{{ subscriptions.length }}</span>
             </div>
-            <div class="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
-              <button @click="handleAddSubscription" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm flex-shrink-0">新增</button>
-              <button 
-                @click="handleUpdateAllSubscriptions" 
-                :disabled="isUpdatingAllSubs"
-                class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors shadow-sm flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                <svg v-if="isUpdatingAllSubs" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>{{ isUpdatingAllSubs ? '更新中...' : '一键更新' }}</span>
-              </button>
-              <button 
-                @click="isSortingSubs = !isSortingSubs" 
-                :class="isSortingSubs ? 'bg-gray-600 hover:bg-gray-700' : 'bg-red-500 hover:bg-red-600'"
-                class="text-sm font-semibold px-4 py-1.5 rounded-lg text-white transition-colors shadow-sm flex-shrink-0 flex items-center gap-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-                </svg>
-                <span>{{ isSortingSubs ? '排序中' : '手动排序' }}</span>
-              </button>
-              <div class="relative flex-shrink-0" ref="subsMoreMenuRef">
-                <button @click="showSubsMoreMenu = !showSubsMoreMenu" class="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <button @click="handleAddSubscription" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm">新增</button>
+                <button 
+                  @click="handleUpdateAllSubscriptions" 
+                  :disabled="isUpdatingAllSubs"
+                  class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  <svg v-if="isUpdatingAllSubs" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span class="hidden sm:inline">{{ isUpdatingAllSubs ? '更新中...' : '一键更新' }}</span>
+                  <span class="sm:hidden">{{ isUpdatingAllSubs ? '更新' : '更新' }}</span>
                 </button>
-                <Transition name="slide-fade-sm">
-                  <div v-if="showSubsMoreMenu" class="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-10 ring-1 ring-black ring-opacity-5">
-                    <button @click="showDeleteSubsModal = true; showSubsMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10">清空所有</button>
-                  </div>
-                </Transition>
+              </div>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <button 
+                  @click="isSortingSubs = !isSortingSubs" 
+                  :class="isSortingSubs ? 'bg-gray-600 hover:bg-gray-700' : 'bg-red-500 hover:bg-red-600'"
+                  class="text-sm font-semibold px-4 py-1.5 rounded-lg text-white transition-colors shadow-sm flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                  </svg>
+                  <span class="hidden sm:inline">{{ isSortingSubs ? '排序中' : '手动排序' }}</span>
+                  <span class="sm:hidden">{{ isSortingSubs ? '排序' : '排序' }}</span>
+                </button>
+                <div class="relative" ref="subsMoreMenuRef">
+                  <button @click="showSubsMoreMenu = !showSubsMoreMenu" class="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
+                  </button>
+                  <Transition name="slide-fade-sm">
+                    <div v-if="showSubsMoreMenu" class="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-10 ring-1 ring-black ring-opacity-5">
+                      <button @click="showDeleteSubsModal = true; showSubsMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10">清空所有</button>
+                    </div>
+                  </Transition>
+                </div>
               </div>
             </div>
           </div>
@@ -576,7 +582,7 @@ const handleNodeDragEnd = async (evt) => {
             <draggable 
               v-if="isSortingSubs" 
               tag="div" 
-              class="grid grid-cols-1 md:grid-cols-2 gap-5" 
+              class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5" 
               v-model="subscriptions" 
               :item-key="item => item.id"
               animation="300" 
@@ -595,7 +601,7 @@ const handleNodeDragEnd = async (evt) => {
                 </div>
               </template>
             </draggable>
-            <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5">
                 <div v-for="subscription in paginatedSubscriptions" :key="subscription.id">
                     <Card 
                         :misub="subscription" 
@@ -621,8 +627,9 @@ const handleNodeDragEnd = async (evt) => {
               <h2 class="text-xl font-bold text-gray-900 dark:text-white">手动节点</h2>
               <span class="px-2.5 py-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700/50 rounded-full">{{ manualNodes.length }}</span>
             </div>
-            <div class="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
-              <div class="relative flex-grow">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto justify-end sm:justify-start">
+              <!-- 搜索框 -->
+              <div class="relative w-full sm:w-48 flex-shrink-0">
                 <input 
                   type="text" 
                   v-model="searchTerm"
@@ -631,41 +638,51 @@ const handleNodeDragEnd = async (evt) => {
                 />
                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </div>
-              <div class="p-0.5 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center flex-shrink-0">
-                  <button @click="setViewMode('card')" class="p-1 rounded-md transition-colors" :class="manualNodeViewMode === 'card' ? 'bg-white dark:bg-gray-900 text-indigo-600' : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white'">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-                  </button>
-                  <button @click="setViewMode('list')" class="p-1 rounded-md transition-colors" :class="manualNodeViewMode === 'list' ? 'bg-white dark:bg-gray-900 text-indigo-600' : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white'">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>
-                  </button>
-              </div>
+              
+              <!-- 按钮组 -->
+              <div class="flex flex-wrap items-center gap-2">
+                <!-- 视图切换 -->
+                <div class="p-0.5 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center flex-shrink-0">
+                    <button @click="setViewMode('card')" class="p-1 rounded-md transition-colors" :class="manualNodeViewMode === 'card' ? 'bg-white dark:bg-gray-900 text-indigo-600' : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white'">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                    </button>
+                    <button @click="setViewMode('list')" class="p-1 rounded-md transition-colors" :class="manualNodeViewMode === 'list' ? 'bg-white dark:bg-gray-900 text-indigo-600' : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white'">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
 
-              <button @click="handleAddNode" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm flex-shrink-0">新增</button>
-              
-              <button 
-                @click="isSortingNodes = !isSortingNodes" 
-                :class="isSortingNodes ? 'bg-gray-600 hover:bg-gray-700' : 'bg-red-500 hover:bg-red-600'"
-                class="text-sm font-semibold px-4 py-1.5 rounded-lg text-white transition-colors shadow-sm flex-shrink-0 flex items-center gap-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-                </svg>
-                <span>{{ isSortingNodes ? '排序中' : '手动排序' }}</span>
-              </button>
-              
-              <div class="relative flex-shrink-0" ref="nodesMoreMenuRef">
-                <button @click="showNodesMoreMenu = !showNodesMoreMenu" class="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
-                </button>
-                 <Transition name="slide-fade-sm">
-                  <div v-if="showNodesMoreMenu" class="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-10 ring-1 ring-black ring-opacity-5">
-                    <button @click="showSubscriptionImportModal = true; showNodesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">导入订阅</button>
-                    <button @click="handleAutoSortNodes(); showNodesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">一键排序</button>
-                    <button @click="handleDeduplicateNodes" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">一键去重</button>
-                    <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                    <button @click="showDeleteNodesModal = true; showNodesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10">清空所有</button>
-                  </div>
-                </Transition>
+                <!-- 主要操作按钮 -->
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <button @click="handleAddNode" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm">新增</button>
+                  
+                  <button 
+                    @click="isSortingNodes = !isSortingNodes" 
+                    :class="isSortingNodes ? 'bg-gray-600 hover:bg-gray-700' : 'bg-red-500 hover:bg-red-600'"
+                    class="text-sm font-semibold px-4 py-1.5 rounded-lg text-white transition-colors shadow-sm flex items-center gap-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                    </svg>
+                    <span class="hidden sm:inline">{{ isSortingNodes ? '排序中' : '手动排序' }}</span>
+                    <span class="sm:hidden">{{ isSortingNodes ? '排序' : '排序' }}</span>
+                  </button>
+                </div>
+                
+                <!-- 更多菜单 -->
+                <div class="relative" ref="nodesMoreMenuRef">
+                  <button @click="showNodesMoreMenu = !showNodesMoreMenu" class="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" /></svg>
+                  </button>
+                   <Transition name="slide-fade-sm">
+                    <div v-if="showNodesMoreMenu" class="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-10 ring-1 ring-black ring-opacity-5">
+                      <button @click="showSubscriptionImportModal = true; showNodesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">导入订阅</button>
+                      <button @click="handleAutoSortNodes(); showNodesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">一键排序</button>
+                      <button @click="handleDeduplicateNodes" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">一键去重</button>
+                      <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                      <button @click="showDeleteNodesModal = true; showNodesMoreMenu=false" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10">清空所有</button>
+                    </div>
+                  </Transition>
+                </div>
               </div>
             </div>
           </div>
@@ -674,7 +691,7 @@ const handleNodeDragEnd = async (evt) => {
                <draggable 
                 v-if="isSortingNodes"
                 tag="div" 
-                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3" 
+                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4" 
                 v-model="manualNodes" 
                 :item-key="item => item.id" 
                 animation="300" 
@@ -691,7 +708,7 @@ const handleNodeDragEnd = async (evt) => {
                   </div>
                 </template>
               </draggable>
-              <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+              <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-4">
                 <div v-for="node in paginatedManualNodes" :key="node.id">
                   <ManualNodeCard 
                     :node="node" 
@@ -722,16 +739,16 @@ const handleNodeDragEnd = async (evt) => {
         </div>
       </div>
       
-      <div class="lg:col-span-1 space-y-8">
+      <div class="lg:col-span-1 space-y-6 lg:space-y-8">
         <RightPanel :config="config" :profiles="profiles" />
         
         <div>
-           <div class="flex items-center justify-between mb-4">
+           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
             <div class="flex items-center gap-3">
               <h2 class="text-xl font-bold text-gray-900 dark:text-white">订阅组</h2>
               <span class="px-2.5 py-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700/50 rounded-full">{{ profiles.length }}</span>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
               <button @click="handleAddProfile" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm">新增</button>
               <div class="relative" ref="profilesMoreMenuRef">
                 <button @click="showProfilesMoreMenu = !showProfilesMoreMenu" class="p-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
