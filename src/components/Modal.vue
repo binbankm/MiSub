@@ -49,7 +49,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
       <Transition name="modal-inner">
         <div
           v-if="show"
-          class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full text-left ring-1 ring-black/5 dark:ring-white/10 flex flex-col max-h-[85vh]"
+          class="card-modern w-full text-left flex flex-col max-h-[85vh]"
           :class="{
             'max-w-sm': size === 'sm',
             'max-w-2xl': size === '2xl'
@@ -69,12 +69,12 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
           </div>
 
           <div class="p-6 pt-4 flex justify-end space-x-3 flex-shrink-0 border-t border-gray-200 dark:border-gray-700">
-            <button @click="emit('update:show', false)" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold text-sm rounded-lg transition-colors">取消</button>
+            <button @click="emit('update:show', false)" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold text-sm rounded-xl transition-all duration-200">取消</button>
             <button 
                 @click="handleConfirm" 
                 :disabled="confirmDisabled || (confirmKeyword && confirmInput !== confirmKeyword)"
                 :title="confirmDisabled ? confirmButtonTitle : '确认'"
-                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-lg transition-colors disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:opacity-70 disabled:cursor-not-allowed"
+                class="btn-modern px-4 py-2 text-sm font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
             >确认</button>
           </div>
         </div>

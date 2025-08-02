@@ -219,7 +219,7 @@ const expiryInfo = computed(() => {
         <div class="flex items-center gap-3">
           <label class="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" v-model="misub.enabled" @change="emit('change')" class="sr-only peer">
-            <div class="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+            <div class="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-gradient-to-r from-indigo-500 to-purple-600"></div>
           </label>
           <span v-if="expiryInfo" class="text-sm font-medium" :class="expiryInfo.style">{{ expiryInfo.daysRemaining }}</span>
         </div>

@@ -157,7 +157,7 @@ const importSubscription = async () => {
     confirm-text="导入"
     :confirm-disabled="isLoading"
   >
-    <template #title>导入订阅</template>
+    <template #title><h3 class="text-lg font-bold gradient-text">导入订阅</h3></template>
     <template #body>
       <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
         请输入订阅链接，系统将尝试解析其中的节点信息。支持 Base64、纯文本节点列表和部分 YAML 格式。
@@ -166,10 +166,12 @@ const importSubscription = async () => {
         type="text"
         v-model="subscriptionUrl"
         placeholder="https://example.com/your-subscription-link"
-        class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="input-modern w-full"
         @keyup.enter="importSubscription"
       />
-      <p v-if="errorMessage" class="text-red-500 text-sm mt-2">{{ errorMessage }}</p>
+      <div v-if="errorMessage" class="mt-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
+        <p class="text-red-600 dark:text-red-400 text-sm">{{ errorMessage }}</p>
+      </div>
     </template>
   </Modal>
 </template>
