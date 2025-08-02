@@ -20,12 +20,12 @@ const props = defineProps({
 const { showToast } = useToastStore();
 
 const selectedId = ref('default');
-const selectedFormat = ref('clash');
+const selectedFormat = ref('自适应');
 const showUrl = ref(false);
 const copied = ref(false);
 let copyTimeout = null;
 
-const formats = ['clash', 'surge', 'v2ray'];
+const formats = ['自适应', 'Base64', 'Clash', 'Sing-Box', 'Surge', 'Loon'];
 
 const subLink = computed(() => {
   if (!props.config?.mytoken) return '';
@@ -34,11 +34,29 @@ const subLink = computed(() => {
   const token = props.config.mytoken;
   const format = selectedFormat.value;
   
+  // 构建基础URL
+  let url;
   if (selectedId.value === 'default') {
-    return `${baseUrl}/sub?token=${token}&format=${format}`;
+    url = `${baseUrl}/${token}`;
   } else {
-    return `${baseUrl}/sub?token=${token}&format=${format}&profile=${selectedId.value}`;
+    url = `${baseUrl}/${token}/${selectedId.value}`;
   }
+  
+  // 根据格式添加参数
+  if (format === '自适应') {
+    return url;
+  }
+  
+  const formatMapping = {
+    'Base64': 'base64',
+    'Clash': 'clash',
+    'Sing-Box': 'singbox',
+    'Surge': 'surge',
+    'Loon': 'loon'
+  };
+  
+  const formatParam = formatMapping[format] || format.toLowerCase();
+  return `${url}?${formatParam}`;
 });
 
 const copyToClipboard = async () => {
@@ -79,7 +97,7 @@ onUnmounted(() => {
 
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">2. 选择格式</label>
-          <div class="grid grid-cols-3 gap-3">
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
             <button
               v-for="format in formats"
               :key="format"
@@ -91,7 +109,7 @@ onUnmounted(() => {
                   : 'bg-white/50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-gray-700/50 border border-gray-200 dark:border-gray-700'
               ]"
             >
-              {{ format.toUpperCase() }}
+              {{ format }}
             </button>
           </div>
         </div>
