@@ -510,7 +510,6 @@ const handleNodeDragEnd = async (evt) => {
         </span>
       </div>
       <div class="flex items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
-        <button @click="showBulkImportModal = true" class="text-sm font-semibold px-4 py-2 rounded-lg text-indigo-600 dark:text-indigo-400 border-2 border-indigo-500/50 hover:bg-indigo-500/10 transition-colors">批量导入</button>
       </div>
     </div>
     <Transition name="slide-fade">
@@ -654,6 +653,8 @@ const handleNodeDragEnd = async (evt) => {
                 <!-- 主要操作按钮 -->
                 <div class="flex items-center gap-2 flex-shrink-0">
                   <button @click="handleAddNode" class="text-sm font-semibold px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-sm">新增</button>
+                  
+                  <button @click="showBulkImportModal = true" class="text-sm font-semibold px-4 py-1.5 rounded-lg text-indigo-600 dark:text-indigo-400 border-2 border-indigo-500/50 hover:bg-indigo-500/10 transition-colors">批量导入</button>
                   
                   <button 
                     @click="isSortingNodes = !isSortingNodes" 
