@@ -280,17 +280,17 @@ const refreshNodes = async () => {
 
 <template>
   <div v-if="show" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99] flex items-center justify-center p-4" @click="emit('update:show', false)">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl text-left ring-1 ring-black/5 dark:ring-white/10 flex flex-col max-h-[85vh]" @click.stop>
+    <div class="card-modern w-full max-w-4xl text-left flex flex-col max-h-[85vh]" @click.stop>
       <!-- 标题 -->
       <div class="p-6 pb-4 flex-shrink-0">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white">节点详情</h3>
+        <h3 class="text-xl font-bold gradient-text">节点详情</h3>
       </div>
       
       <!-- 内容 -->
       <div class="px-6 pb-6 flex-grow overflow-y-auto">
         <div class="space-y-4">
           <!-- 订阅信息头部 -->
-          <div v-if="subscription" class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+          <div v-if="subscription" class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl p-4 border border-indigo-200 dark:border-indigo-800">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="font-semibold text-gray-900 dark:text-gray-100">
@@ -318,14 +318,14 @@ const refreshNodes = async () => {
                 v-model="searchTerm"
                 type="text"
                 placeholder="搜索节点名称或链接..."
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                class="input-modern w-full"
               />
             </div>
             <div class="flex items-center gap-2">
               <button
                 @click="refreshNodes"
                 :disabled="isLoading"
-                class="px-3 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                class="btn-modern px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg v-if="isLoading" class="animate-spin h-4 w-4" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
@@ -337,7 +337,7 @@ const refreshNodes = async () => {
               <button
                 @click="copySelectedNodes"
                 :disabled="selectedNodes.size === 0"
-                class="px-3 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                class="px-4 py-2 text-sm bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
               >
                 复制选中
               </button>

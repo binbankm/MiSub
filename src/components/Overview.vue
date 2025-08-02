@@ -19,9 +19,14 @@ const statsData = computed(() => [
 <template>
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
     <div v-for="stat in statsData" :key="stat.name"
-         class="bg-white/50 dark:bg-gray-900/60 backdrop-blur-sm p-5 rounded-2xl shadow-lg dark:shadow-2xl ring-1 ring-black/5">
-      <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ stat.name }}</p>
-      <p class="mt-1 text-3xl font-semibold" :class="stat.color">{{ stat.value }}</p>
+         class="card-modern p-5 relative overflow-hidden">
+      <!-- 装饰性背景 -->
+      <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-indigo-400/10 to-purple-400/10 rounded-full -translate-y-8 translate-x-8"></div>
+      
+      <div class="relative z-10">
+        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ stat.name }}</p>
+        <p class="mt-2 text-3xl font-bold" :class="stat.color">{{ stat.value }}</p>
+      </div>
     </div>
   </div>
 </template>

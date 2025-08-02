@@ -42,18 +42,18 @@ const hostAndPort = computed(() => extractHostAndPort(props.node.url));
 const protocolStyle = computed(() => {
   const p = protocol.value;
   const styles = {
-    anytls: { text: 'AnyTLS', style: 'bg-slate-500/20 text-slate-500 dark:text-slate-400' },
-    vless: { text: 'VLESS', style: 'bg-blue-500/20 text-blue-500 dark:text-blue-400' },
-    hysteria2: { text: 'HY2', style: 'bg-purple-500/20 text-purple-500 dark:text-purple-400' },
-    hysteria: { text: 'Hysteria', style: 'bg-fuchsia-500/20 text-fuchsia-500 dark:text-fuchsia-400' },
-    tuic: { text: 'TUIC', style: 'bg-cyan-500/20 text-cyan-500 dark:text-cyan-400' },
-    trojan: { text: 'TROJAN', style: 'bg-red-500/20 text-red-500 dark:text-red-400' },
-    ssr: { text: 'SSR', style: 'bg-rose-500/20 text-rose-500 dark:text-rose-400' },
-    ss: { text: 'SS', style: 'bg-orange-500/20 text-orange-500 dark:text-orange-400' },
-    vmess: { text: 'VMESS', style: 'bg-teal-500/20 text-teal-500 dark:text-teal-400' },
-    socks5: { text: 'SOCKS5', style: 'bg-lime-500/20 text-lime-500 dark:text-lime-400' },
-    http: { text: 'HTTP', style: 'bg-green-500/20 text-green-500 dark:text-green-400' },
-    unknown: { text: 'LINK', style: 'bg-gray-500/20 text-gray-500 dark:text-gray-400' }
+    anytls: { text: 'AnyTLS', style: 'bg-gradient-to-r from-slate-500/20 to-gray-500/20 text-slate-600 dark:text-slate-400 border-slate-500/30' },
+    vless: { text: 'VLESS', style: 'bg-gradient-to-r from-blue-500/20 to-indigo-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30' },
+    hysteria2: { text: 'HY2', style: 'bg-gradient-to-r from-purple-500/20 to-violet-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30' },
+    hysteria: { text: 'Hysteria', style: 'bg-gradient-to-r from-fuchsia-500/20 to-pink-500/20 text-fuchsia-600 dark:text-fuchsia-400 border-fuchsia-500/30' },
+    tuic: { text: 'TUIC', style: 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-600 dark:text-cyan-400 border-cyan-500/30' },
+    trojan: { text: 'TROJAN', style: 'bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-600 dark:text-red-400 border-red-500/30' },
+    ssr: { text: 'SSR', style: 'bg-gradient-to-r from-rose-500/20 to-red-500/20 text-rose-600 dark:text-rose-400 border-rose-500/30' },
+    ss: { text: 'SS', style: 'bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-600 dark:text-orange-400 border-orange-500/30' },
+    vmess: { text: 'VMESS', style: 'bg-gradient-to-r from-teal-500/20 to-cyan-500/20 text-teal-600 dark:text-teal-400 border-teal-500/30' },
+    socks5: { text: 'SOCKS5', style: 'bg-gradient-to-r from-lime-500/20 to-green-500/20 text-lime-600 dark:text-lime-400 border-lime-500/30' },
+    http: { text: 'HTTP', style: 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-600 dark:text-green-400 border-green-500/30' },
+    unknown: { text: 'LINK', style: 'bg-gradient-to-r from-gray-500/20 to-slate-500/20 text-gray-600 dark:text-gray-400 border-gray-500/30' }
   };
   return styles[p] || styles['unknown'];
 });
@@ -61,7 +61,7 @@ const protocolStyle = computed(() => {
 
 <template>
   <div
-    class="group w-full bg-white/50 dark:bg-gray-900/60 backdrop-blur-sm rounded-lg shadow-md ring-1 ring-black/5 p-3 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800/80 flex items-center gap-4"
+    class="group w-full card-modern p-4 transition-all duration-300 hover:scale-[1.02] flex items-center gap-4"
     :class="{ 'opacity-50': !node.enabled }"
   >
     <div class="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-gray-200 dark:bg-gray-700/50 rounded-full">
@@ -72,7 +72,7 @@ const protocolStyle = computed(() => {
 
     <div class="flex-shrink-0 w-20 text-center">
       <div
-        class="text-xs font-bold px-2 py-0.5 rounded-full inline-block"
+        class="text-xs font-bold px-3 py-1 rounded-full border inline-block"
         :class="protocolStyle.style"
       >
         {{ protocolStyle.text }}
