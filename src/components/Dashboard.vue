@@ -429,7 +429,25 @@ const handleUpdateAllSubscriptions = async () => {
         const result = await batchUpdateNodes(subscriptionIds);
         
         if (result.success) {
-            showToast(`成功更新了 ${enabledSubs.length} 个订阅`, 'success');
+            // 更新本地订阅数据以同步节点数和用户信息
+            if (result.results && Array.isArray(result.results)) {
+                result.results.forEach(updateResult => {
+                    if (updateResult.success) {
+                        const sub = subscriptions.value.find(s => s.id === updateResult.id);
+                        if (sub) {
+                            if (typeof updateResult.nodeCount === 'number') {
+                                sub.nodeCount = updateResult.nodeCount;
+                            }
+                            if (updateResult.userInfo) {
+                                sub.userInfo = updateResult.userInfo;
+                            }
+                        }
+                    }
+                });
+            }
+            
+            const successCount = result.results ? result.results.filter(r => r.success).length : enabledSubs.length;
+            showToast(`成功更新了 ${successCount} 个订阅`, 'success');
             await handleDirectSave('订阅更新');
         } else {
             showToast(`更新失败: ${result.message}`, 'error');

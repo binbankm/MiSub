@@ -121,8 +121,12 @@ export function useSubscriptions(initialSubsRef, markDirty) {
             if (updateResult.success) {
               const sub = subscriptions.value.find(s => s.id === updateResult.id);
               if (sub) {
-                sub.nodeCount = updateResult.nodeCount;
-                // userInfo会在下次数据同步时更新
+                if (typeof updateResult.nodeCount === 'number') {
+                  sub.nodeCount = updateResult.nodeCount;
+                }
+                if (updateResult.userInfo) {
+                  sub.userInfo = updateResult.userInfo;
+                }
               }
             }
           });

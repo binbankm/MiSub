@@ -699,7 +699,7 @@ async function handleApiRequest(request, env) {
                             const matches = decoded.match(nodeRegex);
                             sub.nodeCount = matches ? matches.length : 0;
 
-                            return { id: sub.id, success: true, nodeCount: sub.nodeCount };
+                            return { id: sub.id, success: true, nodeCount: sub.nodeCount, userInfo: sub.userInfo };
                         } else {
                             return { id: sub.id, success: false, error: `HTTP ${response.status}` };
                         }
