@@ -740,8 +740,6 @@ const handleNodeDragEnd = async (evt) => {
       </div>
       
       <div class="lg:col-span-1 space-y-6 lg:space-y-8">
-        <RightPanel :config="config" :profiles="profiles" />
-        
         <div>
            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
             <div class="flex items-center gap-3">
@@ -785,6 +783,8 @@ const handleNodeDragEnd = async (evt) => {
             <p class="text-sm text-gray-500 dark:text-gray-400">创建一个订阅组来组合你的节点吧！</p>
           </div>
         </div>
+
+        <RightPanel :config="config" :profiles="profiles" />
 
       </div>
     </div>
