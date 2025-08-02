@@ -23,7 +23,7 @@ const currentYear = computed(() => new Date().getFullYear());
           target="_blank" 
           class="font-bold gradient-text hover:opacity-80 transition-opacity duration-300"
         >
-          MiSub Manager
+          MySub Manager
         </a>
         <span class="mx-2">·</span>
         <span class="text-xs">All Rights Reserved</span>
