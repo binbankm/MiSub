@@ -149,32 +149,3 @@ export async function batchUpdateNodes(subscriptionIds) {
         return { success: false, message: '网络请求失败，请检查网络连接' };
     }
 }
-
-/**
- * 测试节点延迟
- * @param {string} url - 要测试的URL
- * @param {number} timeout - 超时时间（毫秒）
- * @param {number} testCount - 测试次数
- * @returns {Promise<Object>} - 测试结果
- */
-export async function testNodeLatency(url, timeout = 5000, testCount = 1) {
-    try {
-        const response = await fetch('/api/test_latency', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url, timeout, testCount })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            const errorMessage = errorData.message || errorData.error || `服务器错误 (${response.status})`;
-            return { success: false, message: errorMessage };
-        }
-
-        const result = await response.json();
-        return result;
-    } catch (error) {
-        console.error("Failed to test node latency:", error);
-        return { success: false, message: '网络请求失败，请检查网络连接' };
-    }
-}
